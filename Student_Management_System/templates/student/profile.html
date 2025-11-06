@@ -1,0 +1,430 @@
+{% extends "base_student.html" %}
+
+{% block title %}Student Profile{% endblock %}
+{% block breadcrumb %}Student Profile{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-section {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--border-color);
+        color: var(--primary-color);
+    }
+
+    .info-field {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--bg-primary);
+    }
+
+    .info-field:last-child {
+        border-bottom: none;
+    }
+
+    .field-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .field-value {
+        font-weight: 500;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .verified-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: var(--success-color);
+        font-size: 0.875rem;
+    }
+
+    .image-section {
+        text-align: center;
+        padding: 2rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .student-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .signature-box {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: white;
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+    }
+
+    .signature-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-section {
+        margin-top: 2rem;
+    }
+
+    .progress-item {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-title {
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .progress-value {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--primary-color);
+    }
+</style>
+
+<!-- Skeleton Loading -->
+<div id="profileSkeleton" style="display: none;">
+    <div class="profile-container">
+        <div class="card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="info-grid">
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Content -->
+<div id="profileContent" class="profile-container">
+    <div class="card">
+        <!-- Tabs -->
+        <div class="tabs">
+            <ul class="tab-list">
+                <li><button class="tab-button active" onclick="switchTab(event, 'studentInfo')">Student Info</button></li>
+                <li><button class="tab-button" onclick="switchTab(event, 'programProgress')">Program Progress</button></li>
+            </ul>
+        </div>
+
+        <!-- Student Info Tab -->
+        <div id="studentInfo" class="tab-content active">
+            <div class="info-grid">
+                <!-- Program Details -->
+                <div class="info-section">
+                    <h3 class="section-title">Program Details</h3>
+                    <div class="info-field">
+                        <span class="field-label">Program</span>
+                        <span class="field-value">{{ student.major or 'Not Assigned' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Student ID</span>
+                        <span class="field-value">{{ student.student_id }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Enrollment Year</span>
+                        <span class="field-value">{{ student.enrollment_year or 'N/A' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Status</span>
+                        <span class="field-value">
+                            <span class="badge badge-success">Active</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Student Information -->
+                <div class="info-section">
+                    <h3 class="section-title">Student Information</h3>
+                    <div class="info-field">
+                        <span class="field-label">Full Name</span>
+                        <span class="field-value">{{ student.first_name }} {{ student.last_name }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Date of Birth</span>
+                        <span class="field-value">{{ student.date_of_birth.strftime('%d-%b-%Y') if student.date_of_birth else 'N/A' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Gender</span>
+                        <span class="field-value">{{ student.gender or 'N/A' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Email</span>
+                        <span class="field-value verified-badge">
+                            {{ student.email }}
+                            <span>✓</span>
+                        </span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Phone</span>
+                        <span class="field-value verified-badge">
+                            {{ student.phone }}
+                            <span>✓</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Academic Information -->
+                <div class="info-section">
+                    <h3 class="section-title">Academic Information</h3>
+                    <div class="info-field">
+                        <span class="field-label">Department</span>
+                        <span class="field-value">{{ student.major or 'N/A' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Current Semester</span>
+                        <span class="field-value">Semester 5</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Credits Enrolled</span>
+                        <span class="field-value">{{ courses|length * 3 if courses else 0 }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">CGPA</span>
+                        <span class="field-value">
+                            {% set total_marks = [] %}
+                            {% for course in courses %}
+                                {% if course.avg_marks %}
+                                    {{ total_marks.append(course.avg_marks) or '' }}
+                                {% endif %}
+                            {% endfor %}
+                            {% if total_marks|length > 0 %}
+                                {{ ((total_marks|sum / total_marks|length) / 10)|round(2) }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Parent/Guardian Information -->
+                <div class="info-section">
+                    <h3 class="section-title">Parent/Guardian Information</h3>
+                    <div class="info-field">
+                        <span class="field-label">Father's Name</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Mother's Name</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Guardian Phone</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Emergency Contact</span>
+                        <span class="field-value">{{ student.phone }}</span>
+                    </div>
+                </div>
+
+                <!-- Current Address -->
+                <div class="info-section">
+                    <h3 class="section-title">Current Address</h3>
+                    <div class="info-field">
+                        <span class="field-label">Address</span>
+                        <span class="field-value">{{ student.address or 'Not Provided' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">City</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">State</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">PIN Code</span>
+                        <span class="field-value">Not Available</span>
+                    </div>
+                </div>
+
+                <!-- Photo & Signature -->
+                <div class="info-section">
+                    <h3 class="section-title">Photo & Signature</h3>
+                    <div class="image-section">
+                        <div class="student-photo">
+                            {{ student.first_name[0]|upper }}{{ student.last_name[0]|upper }}
+                        </div>
+                        <p style="font-weight: 600;">{{ student.first_name }} {{ student.last_name }}</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">ID: {{ student.student_id }}</p>
+                        
+                        <div class="signature-box">
+                            <div class="signature-label">Digital Signature</div>
+                            <p style="font-family: cursive; font-size: 1.5rem; margin: 1rem 0;">
+                                {{ student.first_name }} {{ student.last_name }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Program Progress Tab -->
+        <div id="programProgress" class="tab-content">
+            <div class="info-grid">
+                <div class="info-section">
+                    <h3 class="section-title">Credit Summary</h3>
+                    <div class="info-field">
+                        <span class="field-label">Total Credits Required</span>
+                        <span class="field-value">120</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Credits Earned</span>
+                        <span class="field-value">{{ (courses|length * 3 * 5) if courses else 0 }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Credits in Progress</span>
+                        <span class="field-value">{{ courses|length * 3 if courses else 0 }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="field-label">Credits Remaining</span>
+                        <span class="field-value">{{ 120 - (courses|length * 3 * 5) if courses else 120 }}</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="section-title">Academic Performance</h3>
+                    <div class="progress-section">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-title">Overall Progress</span>
+                                <span class="progress-value">
+                                    {{ ((courses|length * 3 * 5) / 120 * 100)|round(1) if courses else 0 }}%
+                                </span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar success" style="width: {{ ((courses|length * 3 * 5) / 120 * 100)|round(1) if courses else 0 }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-title">Current Semester</span>
+                                <span class="progress-value">60%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar warning" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-title">Attendance Rate</span>
+                                <span class="progress-value">
+                                    {% set total_att = [] %}
+                                    {% for course in courses %}
+                                        {% if course.attendance_percentage %}
+                                            {{ total_att.append(course.attendance_percentage) or '' }}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if total_att|length > 0 %}
+                                        {{ (total_att|sum / total_att|length)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="progress-bar-container">
+                                {% set avg_att = (total_att|sum / total_att|length)|round(1) if total_att|length > 0 else 0 %}
+                                <div class="progress-bar {% if avg_att >= 75 %}success{% elif avg_att >= 60 %}warning{% else %}danger{% endif %}" 
+                                     style="width: {{ avg_att }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3 class="section-title">Semester History</h3>
+                    {% for sem in range(1, 6) %}
+                    <div class="info-field">
+                        <span class="field-label">Semester {{ sem }}</span>
+                        <span class="field-value">
+                            {% if sem < 5 %}
+                                <span class="badge badge-success">Completed</span>
+                            {% elif sem == 5 %}
+                                <span class="badge badge-info">In Progress</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Upcoming</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(event, tabId) {
+        // Remove active from all tabs
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active to selected tab
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+    
+    // Show skeleton loading
+    document.addEventListener('DOMContentLoaded', function() {
+        const skeleton = document.getElementById('profileSkeleton');
+        const content = document.getElementById('profileContent');
+        
+        skeleton.style.display = 'block';
+        content.style.display = 'none';
+        
+        setTimeout(() => {
+            skeleton.style.display = 'none';
+            content.style.display = 'block';
+        }, 800);
+    });
+</script>
+{% endblock %}

@@ -318,12 +318,128 @@ def student_dashboard():
         return redirect(url_for('login'))
     
     user_id = session['user_id']
-    student = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))[0]
+    student_result = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))
+    
+    if not student_result:
+        flash('Student record not found', 'error')
+        return redirect(url_for('login'))
+    
+    student = student_result[0]
     student_id = student['student_id']
     
-    courses = db.call_procedure('sp_GetStudentCourses', (student_id,))
+    # Store student_id in session for sidebar display
+    session['student_id'] = student_id
     
-    return render_template('student/dashboard.html', student=student, courses=courses)
+    # Get courses with attendance and performance data
+    courses_query = """
+        SELECT 
+            c.course_id,
+            c.course_code,
+            c.course_name,
+            c.credits,
+            e.status as enrollment_status,
+            MAX(f.first_name) as faculty_first_name,
+            MAX(f.last_name) as faculty_last_name,
+            -- Calculate attendance percentage
+            (SELECT ROUND((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2)
+             FROM Attendance a 
+             WHERE a.student_id = %s AND a.course_id = c.course_id) as attendance_percentage,
+            -- Calculate average marks percentage
+            (SELECT ROUND(AVG(g.marks_obtained / g.max_marks * 100), 2)
+             FROM Grades g 
+             WHERE g.student_id = %s AND g.course_id = c.course_id) as avg_marks
+        FROM Enrollment e
+        JOIN Courses c ON e.course_id = c.course_id
+        LEFT JOIN Course_Assignment ca ON c.course_id = ca.course_id
+        LEFT JOIN Faculty f ON ca.faculty_id = f.faculty_id
+        WHERE e.student_id = %s AND e.status = 'Enrolled'
+        GROUP BY c.course_id, c.course_code, c.course_name, c.credits, e.status
+        ORDER BY c.course_name
+    """
+    
+    courses = db.execute_query(courses_query, (student_id, student_id, student_id)) or []
+    
+    return render_template('student/dashboard_new.html', student=student, courses=courses)
+
+@app.route('/student/profile')
+def student_profile():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    student_result = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))
+    
+    if not student_result:
+        flash('Student record not found', 'error')
+        return redirect(url_for('login'))
+    
+    student = student_result[0]
+    student_id = student['student_id']
+    
+    # Get courses with attendance and performance data
+    courses_query = """
+        SELECT 
+            c.course_id,
+            c.course_code,
+            c.course_name,
+            c.credits,
+            e.status as enrollment_status,
+            f.first_name as faculty_first_name,
+            f.last_name as faculty_last_name,
+            (SELECT ROUND((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2)
+             FROM Attendance a 
+             WHERE a.student_id = %s AND a.course_id = c.course_id) as attendance_percentage,
+            (SELECT ROUND(AVG(g.marks_obtained / g.max_marks * 100), 2)
+             FROM Grades g 
+             WHERE g.student_id = %s AND g.course_id = c.course_id) as avg_marks
+        FROM Enrollment e
+        JOIN Courses c ON e.course_id = c.course_id
+        LEFT JOIN Course_Assignment ca ON c.course_id = ca.course_id
+        LEFT JOIN Faculty f ON ca.faculty_id = f.faculty_id
+        WHERE e.student_id = %s AND e.status = 'Enrolled'
+        GROUP BY c.course_id
+        ORDER BY c.course_name
+    """
+    
+    courses = db.execute_query(courses_query, (student_id, student_id, student_id)) or []
+    
+    return render_template('student/profile.html', student=student, courses=courses)
+
+@app.route('/student/timetable')
+def student_timetable():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    student_result = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))
+    
+    if not student_result:
+        flash('Student record not found', 'error')
+        return redirect(url_for('login'))
+    
+    student = student_result[0]
+    student_id = student['student_id']
+    
+    # Get enrolled courses with faculty details
+    courses_query = """
+        SELECT 
+            c.course_id,
+            c.course_code,
+            c.course_name,
+            c.credits,
+            f.first_name as faculty_first_name,
+            f.last_name as faculty_last_name
+        FROM Enrollment e
+        JOIN Courses c ON e.course_id = c.course_id
+        LEFT JOIN Course_Assignment ca ON c.course_id = ca.course_id
+        LEFT JOIN Faculty f ON ca.faculty_id = f.faculty_id
+        WHERE e.student_id = %s AND e.status = 'Enrolled'
+        ORDER BY c.course_name
+    """
+    
+    courses = db.execute_query(courses_query, (student_id,)) or []
+    
+    return render_template('student/timetable.html', student=student, courses=courses)
 
 @app.route('/student/attendance')
 def student_attendance():
@@ -366,6 +482,106 @@ def student_grades():
     
     return render_template('student/grades.html', grades=grades)
 
+@app.route('/student/courses')
+def student_courses():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    student_result = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))
+    
+    if not student_result:
+        flash('Student record not found', 'error')
+        return redirect(url_for('login'))
+    
+    student = student_result[0]
+    student_id = student['student_id']
+    
+    # Get enrolled courses with type information
+    courses_query = """
+        SELECT 
+            c.course_id,
+            c.course_code,
+            c.course_name,
+            c.credits,
+            c.department,
+            CASE 
+                WHEN c.course_code LIKE '%SLL%' THEN 'Non Time Table(Dissertation/Seminar/Mootcourt/Industrial Visit)'
+                WHEN c.course_code LIKE '%SOB%' THEN 'Exploratory Course'
+                WHEN c.course_code LIKE '%SFL%' THEN 'Core'
+                ELSE 'Core'
+            END as course_type
+        FROM Enrollment e
+        JOIN Courses c ON e.course_id = c.course_id
+        WHERE e.student_id = %s AND e.status = 'Enrolled'
+        ORDER BY c.course_code
+    """
+    
+    courses = db.execute_query(courses_query, (student_id,)) or []
+    
+    # Calculate credits
+    total_credits = sum(course['credits'] for course in courses) if courses else 0
+    enrolled_credits = total_credits
+    
+    # For demo purposes - in real scenario, these would come from program requirements
+    required_credits = 18  # Typical minimum credits per semester
+    recommended_credits = 44  # Total recommended for the program level
+    additional_credits = max(0, enrolled_credits - required_credits)
+    
+    return render_template('student/courses.html', 
+                         courses=courses,
+                         total_credits=recommended_credits,
+                         enrolled_credits=enrolled_credits,
+                         required_credits=required_credits,
+                         additional_credits=additional_credits)
+
+@app.route('/student/lms')
+def student_lms():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    student_result = db.execute_query("SELECT * FROM Students WHERE user_id = %s", (user_id,))
+    
+    if not student_result:
+        flash('Student record not found', 'error')
+        return redirect(url_for('login'))
+    
+    student = student_result[0]
+    student_id = student['student_id']
+    
+    # Get enrolled courses
+    courses_query = """
+        SELECT 
+            c.course_id,
+            c.course_code,
+            c.course_name,
+            c.credits,
+            c.department
+        FROM Enrollment e
+        JOIN Courses c ON e.course_id = c.course_id
+        WHERE e.student_id = %s AND e.status = 'Enrolled'
+        ORDER BY c.course_name
+    """
+    
+    courses = db.execute_query(courses_query, (student_id,)) or []
+    
+    return render_template('student/lms.html', courses=courses)
+
+@app.route('/student/announcements')
+def student_announcements():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    return render_template('student/announcements.html')
+
+@app.route('/student/fee-payment')
+def student_fee_payment():
+    if 'role' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    return render_template('student/fee_payment.html')
+
 @app.route('/faculty/dashboard')
 def faculty_dashboard():
     if 'role' not in session or session['role'] != 'faculty':
@@ -382,6 +598,138 @@ def faculty_dashboard():
     courses = db.execute_query(query, (faculty_id,))
     
     return render_template('faculty/dashboard.html', faculty=faculty, courses=courses)
+
+@app.route('/faculty/profile')
+def faculty_profile():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    
+    return render_template('faculty/profile.html', faculty=faculty)
+
+@app.route('/faculty/courses')
+def faculty_courses():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    faculty_id = faculty['faculty_id']
+    
+    query = """SELECT c.* FROM Courses c
+               JOIN Course_Assignment ca ON c.course_id = ca.course_id
+               WHERE ca.faculty_id = %s"""
+    
+    courses = db.execute_query(query, (faculty_id,))
+    
+    return render_template('faculty/courses.html', courses=courses)
+
+@app.route('/faculty/lms')
+def faculty_lms():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    faculty_id = faculty['faculty_id']
+    
+    query = """SELECT c.* FROM Courses c
+               JOIN Course_Assignment ca ON c.course_id = ca.course_id
+               WHERE ca.faculty_id = %s"""
+    
+    courses = db.execute_query(query, (faculty_id,))
+    
+    return render_template('faculty/lms.html', courses=courses)
+
+@app.route('/faculty/attendance')
+def faculty_attendance_overview():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    faculty_id = faculty['faculty_id']
+    
+    query = """SELECT c.* FROM Courses c
+               JOIN Course_Assignment ca ON c.course_id = ca.course_id
+               WHERE ca.faculty_id = %s"""
+    
+    courses = db.execute_query(query, (faculty_id,))
+    
+    return render_template('faculty/attendance_overview.html', courses=courses)
+
+@app.route('/faculty/attendance/report/<int:course_id>')
+def faculty_attendance_report(course_id):
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    course = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))[0]
+    
+    # Get attendance report
+    query = """SELECT s.student_id, s.first_name, s.last_name,
+                      COUNT(a.attendance_id) as total_classes,
+                      SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) as present,
+                      SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) as absent,
+                      SUM(CASE WHEN a.status = 'Late' THEN 1 ELSE 0 END) as late,
+                      ROUND((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(a.attendance_id)) * 100, 2) as percentage
+               FROM Students s
+               JOIN Enrollment e ON s.student_id = e.student_id
+               LEFT JOIN Attendance a ON s.student_id = a.student_id AND a.course_id = %s
+               WHERE e.course_id = %s AND e.status = 'Enrolled'
+               GROUP BY s.student_id
+               ORDER BY s.last_name, s.first_name"""
+    
+    students = db.execute_query(query, (course_id, course_id,)) or []
+    
+    return render_template('faculty/attendance_report.html', course=course, students=students)
+
+@app.route('/faculty/grades')
+def faculty_grades_overview():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    faculty_id = faculty['faculty_id']
+    
+    query = """SELECT c.* FROM Courses c
+               JOIN Course_Assignment ca ON c.course_id = ca.course_id
+               WHERE ca.faculty_id = %s"""
+    
+    courses = db.execute_query(query, (faculty_id,))
+    
+    return render_template('faculty/grades_overview.html', courses=courses)
+
+@app.route('/faculty/timetable')
+def faculty_timetable():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    return render_template('faculty/timetable.html')
+
+@app.route('/faculty/students')
+def faculty_students():
+    if 'role' not in session or session['role'] != 'faculty':
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
+    faculty_id = faculty['faculty_id']
+    
+    # Get all students enrolled in faculty's courses
+    query = """SELECT DISTINCT s.*, COUNT(DISTINCT e.course_id) as enrolled_courses
+               FROM Students s
+               JOIN Enrollment e ON s.student_id = e.student_id
+               JOIN Course_Assignment ca ON e.course_id = ca.course_id
+               WHERE ca.faculty_id = %s AND e.status = 'Enrolled'
+               GROUP BY s.student_id
+               ORDER BY s.last_name, s.first_name"""
+    
+    students = db.execute_query(query, (faculty_id,)) or []
+    
+    return render_template('faculty/students.html', students=students)
 
 @app.route('/faculty/attendance/<int:course_id>', methods=['GET', 'POST'])
 def faculty_mark_attendance(course_id):
@@ -407,7 +755,10 @@ def faculty_mark_attendance(course_id):
     students = db.execute_query(query, (course_id,))
     course = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))[0]
     
-    return render_template('faculty/mark_attendance.html', students=students, course=course)
+    from datetime import date
+    today = date.today().strftime('%Y-%m-%d')
+    
+    return render_template('faculty/mark_attendance.html', students=students, course=course, today=today)
 
 @app.route('/faculty/grades/<int:course_id>', methods=['GET', 'POST'])
 def faculty_add_grades(course_id):

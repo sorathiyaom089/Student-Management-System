@@ -1,35 +1,300 @@
-{% extends "base.html" %}
+{% extends "base_faculty.html" %}
 
 {% block title %}Faculty Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-header">
-    <h1>Faculty Dashboard</h1>
-    <p>Welcome, {{ faculty.first_name }} {{ faculty.last_name }}</p>
-</div>
+<style>
+    .dashboard-container {
+        padding: 0;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-<div class="faculty-info-card">
-    <h3>Faculty Information</h3>
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>Faculty ID:</strong> {{ faculty.faculty_id }}
+    /* Welcome Section */
+    .welcome-section {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .welcome-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.375rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 0.938rem;
+        opacity: 0.95;
+        font-weight: 400;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem 1.25rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 0.75rem;
+        background: #eff6ff;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.375rem;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Courses Section */
+    .courses-section {
+        background: white;
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    /* Table Styles */
+    .courses-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .courses-table thead {
+        background: #f8fafc;
+    }
+
+    .courses-table th {
+        text-align: left;
+        padding: 1rem 2rem;
+        font-size: 0.813rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .courses-table td {
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.938rem;
+    }
+
+    .courses-table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .courses-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .courses-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .course-code {
+        font-weight: 600;
+        color: #2563eb;
+        font-family: 'Courier New', monospace;
+        font-size: 0.938rem;
+    }
+
+    .course-name-cell {
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .credits-cell,
+    .semester-cell {
+        color: #64748b;
+    }
+
+    /* Action Buttons */
+    .action-btns {
+        display: flex;
+        gap: 0.625rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.813rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .btn-attendance {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-attendance:hover {
+        background: #bfdbfe;
+    }
+
+    .btn-grades {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .btn-grades:hover {
+        background: #bbf7d0;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #94a3b8;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.4;
+    }
+
+    .empty-text {
+        font-size: 1.125rem;
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .welcome-section {
+            padding: 1.5rem;
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .courses-table th,
+        .courses-table td {
+            padding: 0.75rem 1rem;
+            font-size: 0.813rem;
+        }
+
+        .action-btns {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">Welcome, {{ faculty.first_name }} {{ faculty.last_name }}!</h1>
+        <p class="welcome-subtitle">{{ faculty.department }} • {{ faculty.qualification }}</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value">{{ courses|length if courses else 0 }}</div>
+            <div class="stat-label">Assigned Courses</div>
         </div>
-        <div class="info-item">
-            <strong>Department:</strong> {{ faculty.department }}
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">120</div>
+            <div class="stat-label">Total Students</div>
         </div>
-        <div class="info-item">
-            <strong>Qualification:</strong> {{ faculty.qualification }}
+        <div class="stat-card">
+            <div class="stat-icon">✓</div>
+            <div class="stat-value">45</div>
+            <div class="stat-label">Classes Conducted</div>
         </div>
-        <div class="info-item">
-            <strong>Email:</strong> {{ faculty.email }}
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">87%</div>
+            <div class="stat-label">Avg Attendance</div>
         </div>
     </div>
-</div>
 
-<div class="courses-section">
-    <h2>Assigned Courses</h2>
-    <div class="table-container">
-        <table class="data-table">
+    <!-- Assigned Courses -->
+    <div class="courses-section">
+        <div class="section-header">
+            <h2 class="section-title">Assigned Courses</h2>
+        </div>
+
+        {% if courses %}
+        <table class="courses-table">
             <thead>
                 <tr>
                     <th>Course Code</th>
@@ -42,18 +307,30 @@
             <tbody>
                 {% for course in courses %}
                 <tr>
-                    <td>{{ course.course_code }}</td>
-                    <td>{{ course.course_name }}</td>
-                    <td>{{ course.credits }}</td>
-                    <td>{{ course.semester }}</td>
+                    <td><span class="course-code">{{ course.course_code }}</span></td>
+                    <td class="course-name-cell">{{ course.course_name }}</td>
+                    <td class="credits-cell">{{ course.credits }}</td>
+                    <td class="semester-cell">{{ course.semester }}</td>
                     <td>
-                        <a href="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" class="btn btn-sm btn-primary">Mark Attendance</a>
-                        <a href="{{ url_for('faculty_add_grades', course_id=course.course_id) }}" class="btn btn-sm btn-success">Add Grades</a>
+                        <div class="action-btns">
+                            <a href="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" class="btn-action btn-attendance">
+                                ✓ Attendance
+                            </a>
+                            <a href="{{ url_for('faculty_add_grades', course_id=course.course_id) }}" class="btn-action btn-grades">
+                                📊 Grades
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <div class="empty-text">No courses assigned yet</div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,181 @@
+{% extends "base_faculty.html" %}
+
+{% block title %}Attendance Report{% endblock %}
+{% block breadcrumb %}Attendance Report - {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .report-container {
+        padding: 1rem 2rem 2rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .report-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .course-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .course-info p {
+        font-size: 0.938rem;
+        color: #64748b;
+    }
+
+    .back-btn {
+        padding: 0.75rem 1.5rem;
+        background: #f1f5f9;
+        color: #334155;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .report-table-card {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .report-table thead {
+        background: #f8fafc;
+    }
+
+    .report-table th {
+        text-align: left;
+        padding: 1rem 2rem;
+        font-size: 0.813rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .report-table td {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.938rem;
+    }
+
+    .report-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .percentage-good {
+        color: #16a34a;
+        font-weight: 600;
+    }
+
+    .percentage-warning {
+        color: #d97706;
+        font-weight: 600;
+    }
+
+    .percentage-danger {
+        color: #dc2626;
+        font-weight: 600;
+    }
+</style>
+
+<div class="report-container">
+    <div class="report-header">
+        <div class="course-info">
+            <h1>{{ course.course_name }}</h1>
+            <p>{{ course.course_code }} • Attendance Report</p>
+        </div>
+        <a href="{{ url_for('faculty_attendance_overview') }}" class="back-btn">← Back</a>
+    </div>
+
+    <div class="report-table-card">
+        <div class="table-header">
+            <h2 class="table-title">Student Attendance Summary</h2>
+        </div>
+
+        {% if students %}
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Total Classes</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Late</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.student_id }}</td>
+                    <td class="student-name">{{ student.first_name }} {{ student.last_name }}</td>
+                    <td>{{ student.total_classes or 0 }}</td>
+                    <td>{{ student.present or 0 }}</td>
+                    <td>{{ student.absent or 0 }}</td>
+                    <td>{{ student.late or 0 }}</td>
+                    <td>
+                        {% set pct = student.percentage or 0 %}
+                        <span class="
+                            {% if pct >= 75 %}percentage-good
+                            {% elif pct >= 60 %}percentage-warning
+                            {% else %}percentage-danger
+                            {% endif %}
+                        ">
+                            {{ "%.1f"|format(pct) }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 4rem 2rem; color: #94a3b8;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">📊</div>
+            <div>No attendance records found</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

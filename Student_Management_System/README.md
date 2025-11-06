@@ -1,252 +1,342 @@
 # Student Management System
 
-A comprehensive web-based student management system built with Python Flask and MySQL.
+A modern, feature-rich web-based student management system with a dynamic UPES-style student portal. Built with Python Flask and MySQL.
 
-## Features
+## ✨ Key Features
 
-### Admin Portal
+### 🎓 Student Portal
+- **Dynamic Dashboard** with KPI cards (Credits, Courses, Attendance, Performance)
+- **Collapsible Sidebar** with smooth animations (250px ↔ 70px)
+- **Interactive Calendar** with month navigation
+- **Today's Sessions** widget with tabbed interface
+- **Attendance Summary** with color-coded progress bars
+- **Learning Hours Tracker** with SVG gauge chart
+- **Payment Details** with tabs (Due Payment, History, Scholarship)
+- **Comprehensive Profile** with academic progress tracking
+- **Full-Featured Timetable** (Day/Week/Month/Agenda views)
+
+### 👨‍💼 Admin Portal
+- Complete dashboard with system statistics
 - Manage students, faculty, and courses
-- View system statistics
-- Fee management
-- Generate reports
+- Fee management and payment tracking
+- Excel bulk upload for students
+- Comprehensive reporting system
+- Announcements management
 
-### Student Portal
-- View enrolled courses
-- Check attendance records
-- View grades and GPA
-- Fee status
-
-### Faculty Portal
+### 👨‍🏫 Faculty Portal
 - View assigned courses
-- Mark attendance
-- Add and manage grades
-- Student reports
+- Mark student attendance
+- Manage grades and assessments
+- Generate student reports
 
-## Database Schema
+## 🎨 Modern UI Features
 
-### Tables
-1. **Users** - User authentication (admin, student, faculty)
-2. **Students** - Student personal information
-3. **Faculty** - Faculty details
-4. **Courses** - Course catalog
-5. **Enrollment** - Student course enrollment
-6. **Attendance** - Attendance records
-7. **Grades** - Student grades and assessments
-8. **Fees** - Fee management
-9. **Announcements** - System announcements
-10. **Timetable** - Class schedule
+- **Responsive Design** (Mobile, Tablet, Desktop)
+- **Smooth Animations** (0.3s ease transitions)
+- **Color-Coded System** (Green ≥75%, Yellow ≥60%, Red <60%)
+- **Skeleton Loading Screens** for better UX
+- **Tabbed Interfaces** for organized content
+- **Progress Bars & Gauges** for visual data
+- **Professional Gradients** and modern styling
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-- **Backend**: Python 3.x, Flask Framework
+- **Backend**: Python 3.13, Flask 3.0.0
 - **Database**: MySQL 8.0
-- **Frontend**: HTML5, CSS3, Jinja2 Templates
-- **Database Connector**: mysql-connector-python
+- **Frontend**: HTML5, CSS3 (Flexbox/Grid), Vanilla JavaScript
+- **Template Engine**: Jinja2
+- **Additional**: Pandas (Excel upload), openpyxl
 
-## Installation & Setup
+## 📦 Installation & Setup
 
 ### Prerequisites
-- Python 3.7 or higher
-- MySQL 8.0 or higher
-- pip (Python package manager)
+- Python 3.7+
+- MySQL 8.0+
+- pip package manager
 
-### Step 1: Database Setup
+### Quick Start (5 Minutes)
 
-1. Open MySQL Command Line Client or MySQL Workbench
-2. Execute the SQL files in order:
-
+#### 1. Database Setup
 ```sql
-source C:/Coding/Student_Management_System/database/01_schema.sql
-source C:/Coding/Student_Management_System/database/02_sample_data.sql
-source C:/Coding/Student_Management_System/database/03_procedures_functions.sql
+-- Open MySQL and run:
+source C:/Coding/Student_Management_System/database/01_schema.sql;
+source C:/Coding/Student_Management_System/database/02_sample_data.sql;
+source C:/Coding/Student_Management_System/database/03_procedures_functions.sql;
 ```
 
-Or manually:
-- Run `01_schema.sql` to create database and tables
-- Run `02_sample_data.sql` to insert sample data
-- Run `03_procedures_functions.sql` to create stored procedures
-
-### Step 2: Python Environment Setup
-
-1. Open PowerShell/Command Prompt
-2. Navigate to project directory:
+#### 2. Install Dependencies
 ```powershell
 cd C:\Coding\Student_Management_System
+pip install flask mysql-connector-python pandas openpyxl
 ```
 
-3. Install required packages:
-```powershell
-pip install -r requirements.txt
-```
-
-### Step 3: Configure Database Connection
-
-Edit `backend/database.py` and update MySQL credentials:
-
+#### 3. Configure Database
+Edit `backend/database.py`:
 ```python
-self.host = 'localhost'
-self.database = 'student_management_system'
-self.user = 'root'
 self.password = 'YOUR_MYSQL_PASSWORD'  # Change this!
 ```
 
-### Step 4: Run the Application
-
+#### 4. Run Application
 ```powershell
-cd backend
-python app.py
+python backend/app.py
 ```
 
-The application will start at: `http://localhost:5000`
+Visit: **http://127.0.0.1:5000**
 
-## Default Login Credentials
+## 🔑 Default Login Credentials
 
-### Admin Access
-- **Username**: admin
-- **Password**: admin123
+| Role    | Username      | Password    |
+|---------|---------------|-------------|
+| Admin   | admin         | admin123    |
+| Student | john.student  | pass123     |
+| Faculty | dr.smith      | faculty123  |
 
-### Student Access
-- **Username**: john.student
-- **Password**: pass123
-
-### Faculty Access
-- **Username**: dr.smith
-- **Password**: faculty123
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 Student_Management_System/
-│
-├── database/
-│   ├── 01_schema.sql              # Database schema
-│   ├── 02_sample_data.sql         # Sample data
-│   └── 03_procedures_functions.sql # Stored procedures
-│
 ├── backend/
-│   ├── app.py                     # Flask application
-│   └── database.py                # Database connection
+│   ├── app.py              # Flask routes (50+ routes)
+│   └── database.py         # Database connection class
 │
 ├── templates/
-│   ├── base.html                  # Base template
-│   ├── index.html                 # Home page
-│   ├── login.html                 # Login page
-│   ├── admin/                     # Admin templates
-│   ├── student/                   # Student templates
-│   └── faculty/                   # Faculty templates
+│   ├── base_student.html   # Student portal layout
+│   ├── admin/              # Admin templates (15 files)
+│   ├── student/            # Student templates (6 files)
+│   │   ├── dashboard_new.html  # Modern dashboard
+│   │   ├── profile.html        # Student profile with tabs
+│   │   └── timetable.html      # Calendar with 4 views
+│   └── faculty/            # Faculty templates
 │
 ├── static/
 │   └── css/
-│       └── style.css              # Stylesheet
+│       └── student_portal.css  # Modern UI styles (850+ lines)
 │
-└── requirements.txt               # Python dependencies
+├── database/
+│   ├── 01_schema.sql       # 10+ tables, relationships
+│   ├── 02_sample_data.sql  # Sample data
+│   └── 03_procedures_functions.sql  # Stored procedures
+│
+├── .vscode/
+│   └── settings.json       # VS Code configuration
+│
+├── README.md               # This file
+├── QUICK_START.md          # Quick setup guide
+└── IMPLEMENTATION_SUMMARY.md  # Detailed feature docs
 ```
 
-## Database ER Diagram (Text Representation)
+## 🗄️ Database Schema
 
-```
-Users (1) ──────(1) Students
-Users (1) ──────(1) Faculty
-
-Students (M) ──────(M) Courses [through Enrollment]
-Students (1) ──────(M) Attendance
-Students (1) ──────(M) Grades
-Students (1) ──────(M) Fees
-
-Faculty (1) ──────(M) Course_Assignment
-Courses (1) ──────(M) Course_Assignment
-Courses (1) ──────(M) Enrollment
-Courses (1) ──────(M) Attendance
-Courses (1) ──────(M) Grades
-Courses (1) ──────(M) Timetable
-```
-
-## Key Features Implementation
+### Core Tables (10)
+1. **Users** - Authentication for all roles
+2. **Students** - Student information
+3. **Faculty** - Faculty details
+4. **Courses** - Course catalog
+5. **Departments** - Department management
+6. **Enrollment** - Student-course enrollment
+7. **Attendance** - Attendance records
+8. **Grades** - Assessment scores
+9. **Fees** - Fee management
+10. **Fee_Payments** - Payment tracking
 
 ### Stored Procedures
-- `sp_AddStudent` - Add new student with user account
-- `sp_EnrollStudent` - Enroll student in course
-- `sp_MarkAttendance` - Mark student attendance
-- `sp_AddGrade` - Add student grades
-- `sp_GetStudentCourses` - Get enrolled courses
-- `sp_GetAttendanceReport` - Attendance report
+- `sp_AddStudent` - Add student with user account
+- `sp_EnrollStudent` - Enroll in course
+- `sp_MarkAttendance` - Record attendance
+- `sp_AddGrade` - Add grades
+- `sp_CalculateGPA` - Calculate GPA
+- `sp_GetStudentReport` - Generate reports
 
-### Functions
-- `fn_CalculateGPA` - Calculate student GPA
+## 🎯 Student Portal Features
 
-### Triggers
-- `tr_UpdateFeeStatus` - Auto-update fee status
+### Dashboard
+- **4 KPI Cards**: Total Credits, Active Courses, Avg Attendance, Avg Performance
+- **Sidebar Profile**: Avatar, Student ID, Status badge
+- **Mini Calendar**: Interactive monthly calendar
+- **Today's Sessions**: Time, room, faculty, "Enter Classroom" button
+- **Attendance Summary**: Per-course progress with color coding
+- **Learning Hours**: Circular gauge chart (SVG)
+- **Payment Details**: Tabbed widget with payment info
+- **Legend**: Class type indicators (Classroom/Hybrid/Virtual)
 
-## Usage Guide
+### Profile Page
+- **Tabbed Interface**: Student Info / Program Progress
+- **6 Info Sections**: Program, Student, Academic, Parent, Address, Photo
+- **Progress Tracking**: Overall, semester, attendance with bars
+- **Semester History**: Status badges for all semesters
+- **Skeleton Loading**: 800ms animated loading screen
 
-### For Admin
-1. Login with admin credentials
-2. Navigate to Manage Students/Faculty/Courses
-3. Add new records using the "Add New" button
-4. View and manage all system data
+### Timetable
+- **4 View Modes**: Day (timeline), Week (grid), Month (calendar), Agenda (list)
+- **Calendar Controls**: Export PDF, view toggles, navigation
+- **Color-Coded Events**: Blue (Classroom), Orange (Hybrid), Green (Virtual)
+- **Event Details**: Time, course, room, faculty, type
+- **Dynamic Rendering**: JavaScript-powered calendar
 
-### For Students
-1. Login with student credentials
-2. View dashboard for personal info and courses
-3. Check attendance and grades
-4. View timetable and announcements
+## 🎨 Design Highlights
 
-### For Faculty
-1. Login with faculty credentials
-2. View assigned courses
-3. Mark attendance for classes
-4. Add grades for assessments
+### Collapsible Sidebar
+```javascript
+// Click hamburger → Toggle sidebar
+// Smooth 0.3s animation
+// State persists in localStorage
+Expanded: 250px (Icon + Text)
+Collapsed: 70px (Icon only)
+```
 
-## Screenshots
+### Color System
+```css
+Green:  ≥75% (Good attendance/performance)
+Yellow: ≥60% (Warning)
+Red:    <60% (Critical)
+Blue:   Primary actions
+```
 
-*Note: Take screenshots after running the application and navigating through different pages*
+### Animations
+- Sidebar collapse/expand (0.3s ease)
+- Tab switching (fade-in 0.3s)
+- Progress bar fills (0.6s ease)
+- Hover effects (lift + shadow)
+- Skeleton loading (pulse 1.5s)
 
-Required screenshots for project report:
-1. Home page
-2. Login page
-3. Admin dashboard
-4. Student list
-5. Add student form
-6. Course list
-7. Add course form
-8. Student dashboard
-9. Student attendance view
-10. Student grades view
-11. Faculty dashboard
-12. Mark attendance form
-13. Add grades form
+## 📱 Responsive Design
 
-## Future Enhancements
+```
+Desktop (1024px+):  Full grid, 6-column layout
+Tablet (768-1024):  Stacked cards, 2-column grid
+Mobile (<768px):    Single column, slide-in sidebar
+Small (<480px):     Compact header, icon-only nav
+```
 
-- Email notifications
-- PDF report generation
-- Advanced analytics
+## 🚀 Advanced Features
+
+### Excel Bulk Upload
+- Upload student data via Excel file
+- Template download available
+- Validates data before import
+- Creates user accounts automatically
+
+### Dynamic Reporting
+- Student performance reports
+- Attendance reports (by student/course)
+- Grade reports with GPA
+- Fee collection reports
+
+### Calendar System
+- Week view with time slots
+- Month view with event pills
+- Day view with timeline
+- Agenda view with list
+- Export to PDF (placeholder)
+
+## 📊 Usage Examples
+
+### Admin Tasks
+```
+1. Login → Admin Dashboard
+2. Manage Students → Add New Student
+3. Upload Excel → Select file → Import
+4. Manage Fees → Add Fee Record
+5. Reports → Generate Report
+```
+
+### Student Tasks
+```
+1. Login → Modern Dashboard
+2. View KPI cards (Credits, Attendance)
+3. Check Today's Sessions
+4. Navigate → Timetable (Switch views)
+5. Profile → View academic progress
+```
+
+### Faculty Tasks
+```
+1. Login → Faculty Dashboard
+2. View Assigned Courses
+3. Mark Attendance → Select Course
+4. Add Grades → Enter marks
+```
+
+## 🔧 Troubleshooting
+
+### CSS Linting Errors
+**Issue**: VS Code shows CSS errors in templates  
+**Solution**: Already configured in `.vscode/settings.json`  
+**Action**: Reload VS Code (Ctrl+Shift+P → "Reload Window")
+
+### Database Connection
+**Error**: `Can't connect to MySQL server`  
+**Fix**:
+1. Check MySQL is running
+2. Verify credentials in `backend/database.py`
+3. Ensure database `student_management_system` exists
+
+### Port Conflict
+**Error**: `Address already in use`  
+**Fix**: Change port in `app.py`
+```python
+app.run(debug=True, port=5001)  # Use different port
+```
+
+### Module Not Found
+**Error**: `ModuleNotFoundError: No module named 'flask'`  
+**Fix**:
+```powershell
+pip install flask mysql-connector-python pandas openpyxl
+```
+
+## 📚 Documentation
+
+- **README.md** (this file) - Project overview
+- **QUICK_START.md** - 5-minute setup guide
+- **IMPLEMENTATION_SUMMARY.md** - Complete feature documentation (30+ pages)
+
+## 🎓 Academic Project Info
+
+- **Course**: Database Management Systems
+- **Student**: Pranvkumar Kshirsagar
+- **SAP ID**: 590011587
+- **University**: UPES
+- **Year**: 2025
+
+## 🌟 Highlights
+
+✅ **50+ Flask Routes** with complete CRUD operations  
+✅ **10+ Database Tables** with relationships  
+✅ **6 Stored Procedures** for complex queries  
+✅ **Modern UI** matching UPES portal design  
+✅ **Responsive** across all devices  
+✅ **Dynamic Sidebar** with smooth animations  
+✅ **Color-Coded** visual feedback  
+✅ **Tabbed Interfaces** for organized content  
+✅ **Skeleton Loading** for better UX  
+✅ **Excel Import** for bulk data  
+✅ **Full Calendar** with 4 view modes  
+✅ **Production Ready** code quality  
+
+## 🔮 Future Enhancements
+
+- Email notifications for announcements
+- PDF report generation (grades, transcripts)
 - Online exam module
-- Library management integration
-- Parent portal
+- Discussion forums per course
+- Document upload/download
+- Mobile app (React Native)
+- Real-time notifications (WebSockets)
+- Advanced analytics dashboard
 
-## Troubleshooting
+## 📄 License
 
-### Database Connection Error
-- Check MySQL is running
-- Verify database credentials in `database.py`
-- Ensure database exists: `student_management_system`
+Educational use only. Created for DBMS course project.
 
-### Module Not Found Error
-- Install requirements: `pip install -r requirements.txt`
+## 📧 Contact
 
-### Port Already in Use
-- Change port in `app.py`: `app.run(debug=True, port=5001)`
-
-## Contributors
-
-- Pranvkumar Kshirsagar
-- SAP ID: 590011587
-
-## License
-
-This project is for educational purposes.
+For questions or issues:
+- GitHub: @Pranvkumar
+- Email: pranvkumar.11587@stu.upes.ac.in
 
 ---
 
-For any questions or issues, please contact: [Your Email]
+**Last Updated**: November 6, 2025  
+**Version**: 2.0.0  
+**Status**: ✅ Production Ready

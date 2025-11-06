@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Faculty Portal{% endblock %} - SMS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/faculty_portal.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="hamburger" id="hamburgerBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">
+                <h2>Student Management System</h2>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="breadcrumb">
+                <span>Home</span>
+                <span class="separator">/</span>
+                <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="user-menu">
+                <button class="user-btn" id="userMenuBtn">
+                    <div class="avatar">{{ session.username[0].upper() }}</div>
+                    <span>{{ session.username }}</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M2 4l4 4 4-4"/>
+                    </svg>
+                </button>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="{{ url_for('faculty_profile') }}">Profile Settings</a>
+                    <a href="#">Change Password</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-profile">
+            <div class="sidebar-avatar">{{ session.username[0].upper() }}</div>
+            <div class="sidebar-profile-info">
+                <div class="sidebar-name">{{ session.username }}</div>
+                <div class="sidebar-id">Faculty</div>
+                <div class="sidebar-status">
+                    <span class="status-text">Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="side-nav">
+            <a href="{{ url_for('faculty_dashboard') }}" class="nav-item {% if request.endpoint == 'faculty_dashboard' %}active{% endif %}">
+                <i class="icon">🏠</i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('faculty_profile') }}" class="nav-item {% if request.endpoint == 'faculty_profile' %}active{% endif %}">
+                <i class="icon">👤</i>
+                <span class="nav-text">My Profile</span>
+            </a>
+            <a href="{{ url_for('faculty_courses') }}" class="nav-item {% if request.endpoint == 'faculty_courses' %}active{% endif %}">
+                <i class="icon">📚</i>
+                <span class="nav-text">My Courses</span>
+            </a>
+            <a href="{{ url_for('faculty_lms') }}" class="nav-item {% if request.endpoint == 'faculty_lms' %}active{% endif %}">
+                <i class="icon">🎓</i>
+                <span class="nav-text">LMS</span>
+            </a>
+            <a href="{{ url_for('faculty_attendance_overview') }}" class="nav-item {% if request.endpoint == 'faculty_attendance_overview' %}active{% endif %}">
+                <i class="icon">✓</i>
+                <span class="nav-text">Attendance</span>
+            </a>
+            <a href="{{ url_for('faculty_grades_overview') }}" class="nav-item {% if request.endpoint == 'faculty_grades_overview' %}active{% endif %}">
+                <i class="icon">📊</i>
+                <span class="nav-text">Grades</span>
+            </a>
+            <a href="{{ url_for('faculty_timetable') }}" class="nav-item {% if request.endpoint == 'faculty_timetable' %}active{% endif %}">
+                <i class="icon">📅</i>
+                <span class="nav-text">Time Table</span>
+            </a>
+            <a href="{{ url_for('faculty_students') }}" class="nav-item {% if request.endpoint == 'faculty_students' %}active{% endif %}">
+                <i class="icon">👥</i>
+                <span class="nav-text">Students</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContent">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mainContent = document.getElementById('mainContent');
+
+        // Check localStorage for sidebar state
+        const sidebarExpanded = localStorage.getItem('sidebarExpanded') === 'true';
+        if (sidebarExpanded) {
+            sidebar.classList.add('expanded');
+        }
+
+        hamburgerBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('expanded');
+            localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
+        });
+
+        // User menu dropdown
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('show');
+        });
+
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

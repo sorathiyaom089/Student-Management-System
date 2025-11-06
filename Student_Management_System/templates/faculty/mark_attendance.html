@@ -1,47 +1,416 @@
-{% extends "base.html" %}
+{% extends "base_faculty.html" %}
 
 {% block title %}Mark Attendance{% endblock %}
+{% block breadcrumb %}Mark Attendance - {{ course.course_name }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Mark Attendance - {{ course.course_name }}</h1>
-    <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+<style>
+    .attendance-page {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .course-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .course-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .course-code-info {
+        font-size: 0.938rem;
+        color: var(--text-secondary);
+    }
+
+    .back-btn {
+        padding: 0.75rem 1.5rem;
+        background: #f1f5f9;
+        color: var(--text-primary);
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .attendance-form {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .form-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .date-selector {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .date-label {
+        font-size: 0.938rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .date-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.938rem;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .quick-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-all-present {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .btn-all-absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .btn-reset {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    /* Student List */
+    .students-list {
+        margin-bottom: 2rem;
+    }
+
+    .list-header {
+        display: grid;
+        grid-template-columns: 80px 1fr 200px;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .student-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 200px;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .student-row:hover {
+        background: #f8fafc;
+    }
+
+    .student-id {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .student-name {
+        color: var(--text-primary);
+    }
+
+    .attendance-selector {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .status-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border: 2px solid var(--border-color);
+        background: white;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .status-btn.present {
+        border-color: #16a34a;
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-btn.absent {
+        border-color: #dc2626;
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-btn.late {
+        border-color: #d97706;
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    /* Summary */
+    .attendance-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color), #1e40af);
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .summary-item {
+        text-align: center;
+        color: white;
+    }
+
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .summary-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    /* Submit Button */
+    .submit-section {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .submit-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+
+    .cancel-btn {
+        padding: 1rem 2rem;
+        background: #f1f5f9;
+        color: var(--text-primary);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+
+<div class="attendance-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="course-info">
+            <div>
+                <h1 class="course-title">{{ course.course_name }}</h1>
+                <p class="course-code-info">{{ course.course_code }} • Semester {{ course.semester }}</p>
+            </div>
+            <a href="{{ url_for('faculty_attendance_overview') }}" class="back-btn">← Back to Overview</a>
+        </div>
+    </div>
+
+    <!-- Attendance Form -->
+    <div class="attendance-form">
+        <form method="POST" action="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" id="attendanceForm">
+            <div class="form-header">
+                <h2 class="form-title">Mark Attendance</h2>
+                <div class="date-selector">
+                    <label class="date-label">Date:</label>
+                    <input type="date" name="date" class="date-input" value="{{ today }}" required>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button type="button" class="quick-btn btn-all-present" onclick="markAll('Present')">
+                    ✓ Mark All Present
+                </button>
+                <button type="button" class="quick-btn btn-all-absent" onclick="markAll('Absent')">
+                    ✗ Mark All Absent
+                </button>
+                <button type="button" class="quick-btn btn-reset" onclick="resetAll()">
+                    ↺ Reset
+                </button>
+            </div>
+
+            <!-- Summary -->
+            <div class="attendance-summary">
+                <div class="summary-item">
+                    <div class="summary-value" id="totalStudents">{{ students|length }}</div>
+                    <div class="summary-label">Total Students</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="presentCount">0</div>
+                    <div class="summary-label">Present</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="absentCount">0</div>
+                    <div class="summary-label">Absent</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="lateCount">0</div>
+                    <div class="summary-label">Late</div>
+                </div>
+            </div>
+
+            <!-- Student List -->
+            <div class="students-list">
+                <div class="list-header">
+                    <div>ID</div>
+                    <div>Student Name</div>
+                    <div>Status</div>
+                </div>
+                
+                {% for student in students %}
+                <div class="student-row">
+                    <div class="student-id">{{ student.student_id }}</div>
+                    <div class="student-name">{{ student.first_name }} {{ student.last_name }}</div>
+                    <div class="attendance-selector">
+                        <input type="radio" name="student_{{ student.student_id }}" value="Present" 
+                               id="present_{{ student.student_id }}" class="status-radio" 
+                               data-student="{{ student.student_id }}" required style="display: none;">
+                        <label for="present_{{ student.student_id }}" class="status-btn">Present</label>
+                        
+                        <input type="radio" name="student_{{ student.student_id }}" value="Absent" 
+                               id="absent_{{ student.student_id }}" class="status-radio" 
+                               data-student="{{ student.student_id }}" style="display: none;">
+                        <label for="absent_{{ student.student_id }}" class="status-btn">Absent</label>
+                        
+                        <input type="radio" name="student_{{ student.student_id }}" value="Late" 
+                               id="late_{{ student.student_id }}" class="status-radio" 
+                               data-student="{{ student.student_id }}" style="display: none;">
+                        <label for="late_{{ student.student_id }}" class="status-btn">Late</label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <a href="{{ url_for('faculty_attendance_overview') }}" class="cancel-btn">Cancel</a>
+                <button type="submit" class="submit-btn">Submit Attendance</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="form-container">
-    <form method="POST" action="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}">
-        <div class="form-group">
-            <label for="date">Date *</label>
-            <input type="date" id="date" name="date" class="form-control" value="{{ today }}" required>
-        </div>
+<script>
+    // Update button styles based on selection
+    document.querySelectorAll('.status-radio').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const studentId = this.dataset.student;
+            const value = this.value.toLowerCase();
+            
+            // Remove all status classes for this student
+            document.querySelectorAll(`input[data-student="${studentId}"]`).forEach(r => {
+                const label = document.querySelector(`label[for="${r.id}"]`);
+                label.classList.remove('present', 'absent', 'late');
+            });
+            
+            // Add class to selected option
+            const label = document.querySelector(`label[for="${this.id}"]`);
+            label.classList.add(value);
+            
+            updateSummary();
+        });
+    });
+
+    function markAll(status) {
+        document.querySelectorAll('.status-radio').forEach(radio => {
+            if (radio.value === status) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    function resetAll() {
+        document.querySelectorAll('.status-radio').forEach(radio => {
+            radio.checked = false;
+            const label = document.querySelector(`label[for="${radio.id}"]`);
+            label.classList.remove('present', 'absent', 'late');
+        });
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const present = document.querySelectorAll('input[value="Present"]:checked').length;
+        const absent = document.querySelectorAll('input[value="Absent"]:checked').length;
+        const late = document.querySelectorAll('input[value="Late"]:checked').length;
         
-        <h3>Student List</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Attendance Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                <tr>
-                    <td>{{ student.student_id }}</td>
-                    <td>{{ student.first_name }} {{ student.last_name }}</td>
-                    <td>
-                        <select name="student_{{ student.student_id }}" class="form-control" required>
-                            <option value="Present">Present</option>
-                            <option value="Absent">Absent</option>
-                            <option value="Late">Late</option>
-                        </select>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        <button type="submit" class="btn btn-primary">Submit Attendance</button>
-    </form>
-</div>
+        document.getElementById('presentCount').textContent = present;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('lateCount').textContent = late;
+    }
+</script>
 {% endblock %}

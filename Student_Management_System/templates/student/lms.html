@@ -1,0 +1,268 @@
+{% extends "base_student.html" %}
+
+{% block title %}LMS - My Courses{% endblock %}
+{% block breadcrumb %}My Courses{% endblock %}
+
+{% block content %}
+<style>
+    /* LMS Page Styles */
+    .lms-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .lms-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .lms-tabs {
+        display: flex;
+        gap: 2rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .lms-tab {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .lms-tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .lms-filter {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .filter-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .filter-dropdown {
+        padding: 0.5rem 2rem 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        background: white;
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    /* Course Grid */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .course-thumbnail {
+        width: 100%;
+        height: 160px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-thumbnail.blue {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    }
+
+    .course-thumbnail.pink {
+        background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    }
+
+    .course-thumbnail.gray {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .course-thumbnail.teal {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    }
+
+    .course-thumbnail.purple {
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    }
+
+    .course-thumbnail.cyan {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    }
+
+    .course-thumbnail.lime {
+        background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+    }
+
+    .course-thumbnail.orange {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+
+    .thumbnail-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        background-image: 
+            repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px);
+    }
+
+    .course-info {
+        padding: 1.5rem;
+    }
+
+    .course-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .course-year {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+    }
+
+    .course-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .course-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-subtext {
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .lms-container {
+            padding: 1rem;
+        }
+
+        .lms-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .courses-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+    }
+</style>
+
+<div class="lms-container">
+    <!-- Header with Tabs and Filter -->
+    <div class="lms-header">
+        <div class="lms-tabs">
+            <button class="lms-tab active">Dashboard</button>
+            <button class="lms-tab">My courses</button>
+        </div>
+        
+        <div class="lms-filter">
+            <span class="filter-label">Show:</span>
+            <select class="filter-dropdown">
+                <option value="all" selected>All</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="upcoming">Upcoming</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="courses-grid">
+        {% if courses %}
+            {% for course in courses %}
+            {% set colors = ['blue', 'pink', 'gray', 'teal', 'purple', 'cyan', 'lime', 'orange'] %}
+            {% set color_class = colors[loop.index0 % colors|length] %}
+            
+            <div class="course-card">
+                <div class="course-thumbnail {{ color_class }}">
+                    <div class="thumbnail-pattern"></div>
+                </div>
+                <div class="course-info">
+                    <h3 class="course-title">{{ course.course_name }}</h3>
+                    <p class="course-year">2025-2026</p>
+                    {% if course.department %}
+                    <div class="course-meta">
+                        <span class="course-tag">{{ course.department }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-icon">📚</div>
+                <div class="empty-text">No courses available</div>
+                <div class="empty-subtext">You are not enrolled in any courses yet</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
