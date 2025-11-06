@@ -72,9 +72,14 @@ def admin_dashboard():
         return redirect(url_for('login'))
     
     stats = {}
-    stats['total_students'] = db.execute_query("SELECT COUNT(*) as count FROM Students")[0]['count']
-    stats['total_faculty'] = db.execute_query("SELECT COUNT(*) as count FROM Faculty")[0]['count']
-    stats['total_courses'] = db.execute_query("SELECT COUNT(*) as count FROM Courses")[0]['count']
+    students_result = db.execute_query("SELECT COUNT(*) as count FROM Students")
+    stats['total_students'] = students_result[0]['count'] if students_result else 0
+    
+    faculty_result = db.execute_query("SELECT COUNT(*) as count FROM Faculty")
+    stats['total_faculty'] = faculty_result[0]['count'] if faculty_result else 0
+    
+    courses_result = db.execute_query("SELECT COUNT(*) as count FROM Courses")
+    stats['total_courses'] = courses_result[0]['count'] if courses_result else 0
     
     return render_template('admin/dashboard.html', stats=stats)
 
@@ -83,7 +88,7 @@ def admin_students():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
     
-    students = db.execute_query("SELECT * FROM Students ORDER BY student_id DESC")
+    students = db.execute_query("SELECT * FROM Students ORDER BY student_id DESC") or []
     return render_template('admin/students.html', students=students)
 
 @app.route('/admin/students/add', methods=['GET', 'POST'])
@@ -271,7 +276,7 @@ def admin_faculty():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
     
-    faculty = db.execute_query("SELECT * FROM Faculty ORDER BY faculty_id DESC")
+    faculty = db.execute_query("SELECT * FROM Faculty ORDER BY faculty_id DESC") or []
     return render_template('admin/faculty.html', faculty=faculty)
 
 @app.route('/admin/courses')
@@ -279,7 +284,7 @@ def admin_courses():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
     
-    courses = db.execute_query("SELECT * FROM Courses ORDER BY course_id DESC")
+    courses = db.execute_query("SELECT * FROM Courses ORDER BY course_id DESC") or []
     return render_template('admin/courses.html', courses=courses)
 
 @app.route('/admin/courses/add', methods=['GET', 'POST'])
@@ -450,14 +455,20 @@ def admin_fees():
                GROUP BY f.fee_id
                ORDER BY f.due_date DESC"""
     
-    fees = db.execute_query(query)
+    fees = db.execute_query(query) or []
     
     # Get summary stats
     stats = {}
-    stats['total_fees'] = db.execute_query("SELECT COALESCE(SUM(total_amount), 0) as total FROM Fees")[0]['total']
-    stats['total_paid'] = db.execute_query("SELECT COALESCE(SUM(amount), 0) as total FROM Fee_Payments")[0]['total']
+    total_fees_result = db.execute_query("SELECT COALESCE(SUM(total_amount), 0) as total FROM Fees")
+    stats['total_fees'] = total_fees_result[0]['total'] if total_fees_result else 0
+    
+    total_paid_result = db.execute_query("SELECT COALESCE(SUM(amount), 0) as total FROM Fee_Payments")
+    stats['total_paid'] = total_paid_result[0]['total'] if total_paid_result else 0
+    
     stats['total_pending'] = stats['total_fees'] - stats['total_paid']
-    stats['pending_count'] = db.execute_query("SELECT COUNT(*) as count FROM Fees WHERE status = 'Pending'")[0]['count']
+    
+    pending_count_result = db.execute_query("SELECT COUNT(*) as count FROM Fees WHERE status = 'Pending'")
+    stats['pending_count'] = pending_count_result[0]['count'] if pending_count_result else 0
     
     return render_template('admin/fees.html', fees=fees, stats=stats)
 
@@ -485,7 +496,7 @@ def admin_add_fee():
         else:
             flash('Error adding fee record', 'error')
     
-    students = db.execute_query("SELECT * FROM Students ORDER BY first_name, last_name")
+    students = db.execute_query("SELECT * FROM Students ORDER BY first_name, last_name") or []
     return render_template('admin/add_fee.html', students=students)
 
 @app.route('/admin/fees/payment/<int:fee_id>', methods=['GET', 'POST'])
@@ -509,12 +520,17 @@ def admin_add_payment(fee_id):
         else:
             flash('Error recording payment', 'error')
     
-    fee = db.execute_query("""SELECT f.*, s.first_name, s.last_name, s.program
+    fee_result = db.execute_query("""SELECT f.*, s.first_name, s.last_name, s.program
                               FROM Fees f
                               JOIN Students s ON f.student_id = s.student_id
-                              WHERE f.fee_id = %s""", (fee_id,))[0]
+                              WHERE f.fee_id = %s""", (fee_id,))
     
-    payments = db.execute_query("SELECT * FROM Fee_Payments WHERE fee_id = %s ORDER BY payment_date DESC", (fee_id,))
+    if not fee_result:
+        flash('Fee record not found', 'error')
+        return redirect(url_for('admin_fees'))
+    
+    fee = fee_result[0]
+    payments = db.execute_query("SELECT * FROM Fee_Payments WHERE fee_id = %s ORDER BY payment_date DESC", (fee_id,)) or []
     
     return render_template('admin/add_payment.html', fee=fee, payments=payments)
 
@@ -542,7 +558,7 @@ def admin_student_report():
         LEFT JOIN Grades g ON s.student_id = g.student_id
         GROUP BY s.student_id
         ORDER BY s.first_name, s.last_name
-    """)
+    """) or []
     
     return render_template('admin/student_report.html', students=students)
 
@@ -561,7 +577,7 @@ def admin_attendance_report():
         JOIN Courses c ON a.course_id = c.course_id
         GROUP BY a.course_id
         ORDER BY c.course_name
-    """)
+    """) or []
     
     return render_template('admin/attendance_report.html', report=report)
 
@@ -580,7 +596,7 @@ def admin_grades_report():
         JOIN Courses c ON g.course_id = c.course_id
         GROUP BY g.course_id
         ORDER BY c.course_name
-    """)
+    """) or []
     
     return render_template('admin/grades_report.html', report=report)
 
@@ -600,7 +616,7 @@ def admin_fees_report():
         LEFT JOIN Fee_Payments fp ON f.fee_id = fp.fee_id
         GROUP BY s.program, s.semester
         ORDER BY s.program, s.semester
-    """)
+    """) or []
     
     return render_template('admin/fees_report.html', report=report)
 
@@ -633,7 +649,7 @@ def admin_announcements():
         FROM Announcements a
         JOIN Users u ON a.created_by = u.user_id
         ORDER BY a.created_at DESC
-    """)
+    """) or []
     
     return render_template('admin/announcements.html', announcements=announcements)
 
@@ -704,19 +720,23 @@ def admin_add_faculty():
         
         if user_result:
             # Get the user_id
-            user = db.execute_query("SELECT user_id FROM Users WHERE username = %s", (username,))[0]
-            user_id = user['user_id']
+            user = db.execute_query("SELECT user_id FROM Users WHERE username = %s", (username,))
             
-            # Insert into Faculty table
-            faculty_query = """INSERT INTO Faculty (user_id, first_name, last_name, department, designation, phone, office_location, specialization)
-                              VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-            faculty_result = db.execute_query(faculty_query, (user_id, first_name, last_name, department, designation, phone, office_location, specialization))
-            
-            if faculty_result:
-                flash('Faculty member added successfully!', 'success')
-                return redirect(url_for('admin_faculty'))
+            if user and len(user) > 0:
+                user_id = user[0]['user_id']
+                
+                # Insert into Faculty table
+                faculty_query = """INSERT INTO Faculty (user_id, first_name, last_name, department, designation, phone, office_location, specialization)
+                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                faculty_result = db.execute_query(faculty_query, (user_id, first_name, last_name, department, designation, phone, office_location, specialization))
+                
+                if faculty_result:
+                    flash('Faculty member added successfully!', 'success')
+                    return redirect(url_for('admin_faculty'))
+                else:
+                    flash('Error adding faculty member to Faculty table', 'error')
             else:
-                flash('Error adding faculty member', 'error')
+                flash('Error retrieving created user', 'error')
         else:
             flash('Error creating user account', 'error')
     
