@@ -708,10 +708,9 @@ def admin_add_faculty():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         department = request.form['department']
-        designation = request.form['designation']
+        qualification = request.form['qualification']
         phone = request.form['phone']
-        office_location = request.form.get('office_location', '')
-        specialization = request.form.get('specialization', '')
+        hire_date = request.form.get('hire_date', None)
         
         # Insert into Users table
         user_query = """INSERT INTO Users (username, password, email, role)
@@ -725,10 +724,10 @@ def admin_add_faculty():
             if user and len(user) > 0:
                 user_id = user[0]['user_id']
                 
-                # Insert into Faculty table
-                faculty_query = """INSERT INTO Faculty (user_id, first_name, last_name, department, designation, phone, office_location, specialization)
+                # Insert into Faculty table - matching actual schema
+                faculty_query = """INSERT INTO Faculty (user_id, first_name, last_name, department, phone, email, qualification, hire_date)
                                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-                faculty_result = db.execute_query(faculty_query, (user_id, first_name, last_name, department, designation, phone, office_location, specialization))
+                faculty_result = db.execute_query(faculty_query, (user_id, first_name, last_name, department, phone, email, qualification, hire_date))
                 
                 if faculty_result:
                     flash('Faculty member added successfully!', 'success')
