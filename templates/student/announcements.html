@@ -1,0 +1,409 @@
+{% extends "base_student.html" %}
+
+{% block title %}Announcements{% endblock %}
+{% block breadcrumb %}Announcements{% endblock %}
+
+{% block content %}
+<style>
+    /* Announcements Page Styles */
+    .announcements-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .announcements-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .announcements-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        background: white;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    /* Announcement Cards */
+    .announcement-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .announcement-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .announcement-card.important {
+        border-left-color: #dc2626;
+        background: linear-gradient(to right, #fef2f2 0%, white 10%);
+    }
+
+    .announcement-card.general {
+        border-left-color: #2563eb;
+    }
+
+    .announcement-card.academic {
+        border-left-color: #16a34a;
+    }
+
+    .announcement-card.event {
+        border-left-color: #9333ea;
+    }
+
+    .announcement-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .announcement-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .announcement-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .badge-important {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .badge-general {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .badge-academic {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-event {
+        background: #f3e8ff;
+        color: #9333ea;
+    }
+
+    .announcement-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .announcement-title-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .announcement-content {
+        font-size: 0.938rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .announcement-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .announcement-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .author-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), #1e40af);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .attachment-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #f1f5f9;
+        border-radius: 6px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .attachment-link:hover {
+        background: #e2e8f0;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .announcements-container {
+            padding: 1rem;
+        }
+
+        .announcements-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-buttons {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .announcement-footer {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="announcements-container">
+    <!-- Header -->
+    <div class="announcements-header">
+        <h1 class="announcements-title">📢 Announcements</h1>
+        <div class="filter-buttons">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Important</button>
+            <button class="filter-btn">Academic</button>
+            <button class="filter-btn">Events</button>
+        </div>
+    </div>
+
+    <!-- Announcements List -->
+    <div class="announcements-list">
+        <!-- Important Announcement -->
+        <div class="announcement-card important">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-important">🔴 Important</span>
+                    <span class="announcement-date">
+                        📅 November 4, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Mid-Term Examination Schedule Released</h3>
+            <p class="announcement-content">
+                The mid-term examination schedule for Fall Semester 2025-26 has been released. All exams will be conducted from November 18-25, 2025. Students are advised to check their individual timetables on the portal and prepare accordingly. Hall tickets will be available for download from November 15, 2025.
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">EO</div>
+                    <span>Examination Office</span>
+                </div>
+                <a href="#" class="attachment-link">
+                    📎 Download Schedule
+                </a>
+            </div>
+        </div>
+
+        <!-- Academic Announcement -->
+        <div class="announcement-card academic">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-academic">📚 Academic</span>
+                    <span class="announcement-date">
+                        📅 November 3, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Course Registration for Spring Semester 2026</h3>
+            <p class="announcement-content">
+                Course registration for Spring Semester 2026 will begin on November 20, 2025. Students are requested to consult with their academic advisors before registration. Early registration is encouraged to secure preferred course sections. Registration will remain open until December 5, 2025.
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">AR</div>
+                    <span>Academic Registry</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Announcement -->
+        <div class="announcement-card event">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-event">🎉 Event</span>
+                    <span class="announcement-date">
+                        📅 November 1, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Annual Tech Fest - Innovation 2025</h3>
+            <p class="announcement-content">
+                The Computer Science Department proudly presents Innovation 2025, our annual tech fest scheduled for November 15-17, 2025. Join us for three days of hackathons, workshops, tech talks, and competitions. Register your teams before November 10, 2025. Exciting prizes and certificates await!
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">CS</div>
+                    <span>CS Department</span>
+                </div>
+                <a href="#" class="attachment-link">
+                    📎 Event Details & Registration
+                </a>
+            </div>
+        </div>
+
+        <!-- General Announcement -->
+        <div class="announcement-card general">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-general">ℹ️ General</span>
+                    <span class="announcement-date">
+                        📅 October 30, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Library Extended Hours During Exams</h3>
+            <p class="announcement-content">
+                The Central Library will operate with extended hours during the mid-term examination period. From November 15-25, 2025, the library will be open from 7:00 AM to 11:00 PM. Additional study spaces have been arranged in the academic blocks. Silent zones will be strictly maintained.
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">LB</div>
+                    <span>Library Administration</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Announcement -->
+        <div class="announcement-card academic">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-academic">📚 Academic</span>
+                    <span class="announcement-date">
+                        📅 October 28, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Assignment Submission Deadline Extended</h3>
+            <p class="announcement-content">
+                Due to technical issues with the LMS portal, the deadline for submitting assignments for courses CSEG2006 and CSEG2060 has been extended to November 8, 2025. Students who faced difficulties are requested to resubmit their work. For any queries, contact your respective course instructors.
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">DR</div>
+                    <span>Dr. Lisa Johnson</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Announcement -->
+        <div class="announcement-card important">
+            <div class="announcement-header">
+                <div class="announcement-meta">
+                    <span class="announcement-badge badge-important">🔴 Important</span>
+                    <span class="announcement-date">
+                        📅 October 25, 2025
+                    </span>
+                </div>
+            </div>
+            <h3 class="announcement-title-text">Fee Payment Deadline - November 15, 2025</h3>
+            <p class="announcement-content">
+                This is a reminder that the last date for paying semester fees without late charges is November 15, 2025. After this date, a late fee of ₹500 will be applicable. Students can pay online through the portal or visit the accounts office during working hours (9 AM - 5 PM).
+            </p>
+            <div class="announcement-footer">
+                <div class="announcement-author">
+                    <div class="author-avatar">AO</div>
+                    <span>Accounts Office</span>
+                </div>
+                <a href="{{ url_for('student_fee_payment') }}" class="attachment-link">
+                    💳 Pay Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filter functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.textContent.toLowerCase();
+            const cards = document.querySelectorAll('.announcement-card');
+            
+            cards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const hasClass = card.classList.contains(filter);
+                    card.style.display = hasClass ? 'block' : 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

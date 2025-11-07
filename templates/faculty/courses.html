@@ -1,0 +1,190 @@
+{% extends "base_faculty.html" %}
+
+{% block title %}My Courses{% endblock %}
+{% block breadcrumb %}My Courses{% endblock %}
+
+{% block content %}
+<style>
+    .courses-container {
+        padding: 1rem 2rem 2rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.938rem;
+        color: #64748b;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid #2563eb;
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .course-header {
+        margin-bottom: 1rem;
+    }
+
+    .course-code-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 6px;
+        font-size: 0.813rem;
+        font-weight: 600;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .course-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .course-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.625rem;
+        text-align: center;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-success {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="courses-container">
+    <div class="page-header">
+        <h1 class="page-title">📚 My Courses</h1>
+        <p class="page-subtitle">Courses assigned to you this semester</p>
+    </div>
+
+    <div class="courses-grid">
+        {% if courses %}
+            {% for course in courses %}
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code-badge">{{ course.course_code }}</span>
+                    <h3 class="course-name">{{ course.course_name }}</h3>
+                    <div class="course-meta">
+                        <span>📊 {{ course.credits }} Credits</span>
+                        <span>📅 Semester {{ course.semester }}</span>
+                    </div>
+                </div>
+
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">60</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Classes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">85%</div>
+                        <div class="stat-label">Avg Attendance</div>
+                    </div>
+                </div>
+
+                <div class="course-actions">
+                    <a href="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" class="action-btn btn-primary">
+                        ✓ Attendance
+                    </a>
+                    <a href="{{ url_for('faculty_add_grades', course_id=course.course_id) }}" class="action-btn btn-success">
+                        📊 Grades
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: #94a3b8;">
+                <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.4;">📚</div>
+                <div style="font-size: 1.125rem; font-weight: 500;">No courses assigned</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

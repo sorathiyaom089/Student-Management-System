@@ -1,0 +1,239 @@
+{% extends "base_faculty.html" %}
+
+{% block title %}Attendance Overview{% endblock %}
+{% block breadcrumb %}Attendance{% endblock %}
+
+{% block content %}
+<style>
+    .attendance-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.938rem;
+        color: var(--text-secondary);
+    }
+
+    /* Course Cards */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .course-header {
+        margin-bottom: 1rem;
+    }
+
+    .course-code-text {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .course-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .course-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-box {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-text {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    .course-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .action-button {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-mark {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: white;
+    }
+
+    .btn-view {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .action-button:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+</style>
+
+<div class="attendance-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">✓ Attendance Management</h1>
+        <p class="page-subtitle">Mark and manage student attendance for your courses</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value">{{ courses|length if courses else 0 }}</div>
+            <div class="stat-label">Total Courses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">120</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">87.5%</div>
+            <div class="stat-label">Avg Attendance</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">45</div>
+            <div class="stat-label">Classes Held</div>
+        </div>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="courses-grid">
+        {% if courses %}
+            {% for course in courses %}
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code-text">{{ course.course_code }}</div>
+                    <div class="course-name">{{ course.course_name }}</div>
+                </div>
+                
+                <div class="course-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">{{ course.credits }}</div>
+                        <div class="stat-text">Credits</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">60</div>
+                        <div class="stat-text">Students</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">15</div>
+                        <div class="stat-text">Classes</div>
+                    </div>
+                </div>
+
+                <div class="course-actions">
+                    <a href="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" class="action-button btn-mark">
+                        ✓ Mark Attendance
+                    </a>
+                    <a href="{{ url_for('faculty_attendance_report', course_id=course.course_id) }}" class="action-button btn-view">
+                        📊 View Report
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-icon">📚</div>
+                <div class="empty-text">No courses assigned</div>
+                <div class="empty-subtext">Contact the admin to get courses assigned</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

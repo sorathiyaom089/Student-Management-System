@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_portal.css') }}">
+</head>
+<body>
+    <!-- Header Bar -->
+    <header class="top-header">
+        <div class="header-left">
+            <button class="hamburger-btn" id="sidebarToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">
+                <h2>Student Management System</h2>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <nav class="breadcrumbs">
+                <a href="{{ url_for('student_dashboard') }}">Home</a>
+                <span class="separator">/</span>
+                <span class="current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+            </nav>
+        </div>
+        
+        <div class="header-right">
+            <div class="user-menu">
+                <button class="user-btn">
+                    <div class="avatar">{{ session.username[0].upper() }}</div>
+                    <span>{{ session.username }}</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#">Profile Settings</a>
+                    <a href="#">Change Password</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Side Navigation Panel -->
+    <aside class="side-panel" id="sidePanel">
+        <!-- Profile Section in Sidebar -->
+        <div class="sidebar-profile">
+            <div class="sidebar-avatar">{{ session.username[0].upper() if session.username else 'U' }}</div>
+            <div class="sidebar-profile-info">
+                <div class="sidebar-name">{{ session.username }}</div>
+                <div class="sidebar-id">ID: {{ session.get('student_id', 'N/A') }}</div>
+                <span class="sidebar-status">
+                    <span class="status-dot green"></span>
+                    <span class="status-text">ACTIVE</span>
+                </span>
+            </div>
+        </div>
+        
+        <nav class="side-nav">
+            <a href="{{ url_for('student_dashboard') }}" class="nav-item {% if request.endpoint == 'student_dashboard' %}active{% endif %}">
+                <i class="icon">🏠</i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('student_profile') }}" class="nav-item {% if request.endpoint == 'student_profile' %}active{% endif %}">
+                <i class="icon">👤</i>
+                <span class="nav-text">Student Profile</span>
+            </a>
+            <a href="{{ url_for('student_timetable') }}" class="nav-item {% if request.endpoint == 'student_timetable' %}active{% endif %}">
+                <i class="icon">📅</i>
+                <span class="nav-text">Time Table</span>
+            </a>
+            <a href="{{ url_for('student_attendance') }}" class="nav-item {% if request.endpoint == 'student_attendance' %}active{% endif %}">
+                <i class="icon">✓</i>
+                <span class="nav-text">Attendance</span>
+            </a>
+            <a href="{{ url_for('student_grades') }}" class="nav-item {% if request.endpoint == 'student_grades' %}active{% endif %}">
+                <i class="icon">📊</i>
+                <span class="nav-text">Grades & Results</span>
+            </a>
+            <a href="{{ url_for('student_courses') }}" class="nav-item {% if request.endpoint == 'student_courses' %}active{% endif %}">
+                <i class="icon">📚</i>
+                <span class="nav-text">Courses</span>
+            </a>
+            <a href="{{ url_for('student_lms') }}" class="nav-item {% if request.endpoint == 'student_lms' %}active{% endif %}">
+                <i class="icon">🎓</i>
+                <span class="nav-text">LMS</span>
+            </a>
+            <a href="{{ url_for('student_fee_payment') }}" class="nav-item {% if request.endpoint == 'student_fee_payment' %}active{% endif %}">
+                <i class="icon">💳</i>
+                <span class="nav-text">Fee Payment</span>
+            </a>
+            <a href="{{ url_for('student_announcements') }}" class="nav-item {% if request.endpoint == 'student_announcements' %}active{% endif %}">
+                <i class="icon">📢</i>
+                <span class="nav-text">Announcements</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContent">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-btn" onclick="this.parentElement.remove()">×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Sidebar Toggle Functionality
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const body = document.body;
+        
+        // Start collapsed by default (show icons only)
+        // Check localStorage for saved state - if 'false' or doesn't exist, stay collapsed
+        const isExpanded = localStorage.getItem('sidebarExpanded') === 'true';
+        if (!isExpanded) {
+            body.classList.add('sidebar-collapsed');
+        }
+        
+        sidebarToggle.addEventListener('click', () => {
+            body.classList.toggle('sidebar-collapsed');
+            // Save state to localStorage (store expanded state, not collapsed)
+            const expanded = !body.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sidebarExpanded', expanded);
+        });
+
+        // User Menu Dropdown
+        const userBtn = document.querySelector('.user-btn');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        
+        if (userBtn && dropdownMenu) {
+            userBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+            });
+        }
+
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

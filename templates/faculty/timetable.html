@@ -1,0 +1,208 @@
+{% extends "base_faculty.html" %}
+
+{% block title %}Time Table{% endblock %}
+{% block breadcrumb %}Time Table{% endblock %}
+
+{% block content %}
+<style>
+    .timetable-container {
+        padding: 1rem 2rem 2rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .timetable-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .timetable-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(5, 1fr);
+        gap: 1px;
+        background: #e2e8f0;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .time-header,
+    .day-header,
+    .time-cell,
+    .class-cell {
+        background: white;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .time-header {
+        background: #f8fafc;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .day-header {
+        background: #f1f5f9;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .time-cell {
+        background: #f8fafc;
+        font-size: 0.813rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .class-cell {
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .class-cell:hover {
+        background: #f8fafc;
+    }
+
+    .class-cell.has-class {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        cursor: pointer;
+    }
+
+    .class-cell.has-class:hover {
+        background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+    }
+
+    .class-code {
+        font-weight: 600;
+        color: #1e40af;
+        font-size: 0.813rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .class-name {
+        font-size: 0.75rem;
+        color: #334155;
+    }
+
+    .empty-cell {
+        color: #cbd5e1;
+        font-size: 0.75rem;
+    }
+</style>
+
+<div class="timetable-container">
+    <div class="page-header">
+        <h1 class="page-title">📅 My Time Table</h1>
+        <p class="page-subtitle">Weekly class schedule</p>
+    </div>
+
+    <div class="timetable-card">
+        <div class="timetable-grid">
+            <!-- Header Row -->
+            <div class="time-header">Time</div>
+            <div class="day-header">Monday</div>
+            <div class="day-header">Tuesday</div>
+            <div class="day-header">Wednesday</div>
+            <div class="day-header">Thursday</div>
+            <div class="day-header">Friday</div>
+
+            <!-- 9:00 AM -->
+            <div class="time-cell">9:00 AM</div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS101</div>
+                <div class="class-name">Programming Fundamentals</div>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS101</div>
+                <div class="class-name">Programming Fundamentals</div>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS101</div>
+                <div class="class-name">Programming Fundamentals</div>
+            </div>
+
+            <!-- 11:00 AM -->
+            <div class="time-cell">11:00 AM</div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS201</div>
+                <div class="class-name">Data Structures</div>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS201</div>
+                <div class="class-name">Data Structures</div>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+
+            <!-- 2:00 PM -->
+            <div class="time-cell">2:00 PM</div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS201</div>
+                <div class="class-name">Data Structures</div>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell has-class">
+                <div class="class-code">CS201</div>
+                <div class="class-name">Data Structures Lab</div>
+            </div>
+
+            <!-- 4:00 PM -->
+            <div class="time-cell">4:00 PM</div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+            <div class="class-cell">
+                <span class="empty-cell">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

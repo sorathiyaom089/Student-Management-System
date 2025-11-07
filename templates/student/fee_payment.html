@@ -1,0 +1,504 @@
+{% extends "base_student.html" %}
+
+{% block title %}Fee Payment{% endblock %}
+{% block breadcrumb %}Fee Payment{% endblock %}
+
+{% block content %}
+<style>
+    /* Fee Payment Page Styles */
+    .fee-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .fee-header {
+        margin-bottom: 2rem;
+    }
+
+    .fee-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .fee-subtitle {
+        font-size: 0.938rem;
+        color: var(--text-secondary);
+    }
+
+    /* Summary Cards */
+    .fee-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .summary-card.due {
+        border-left-color: #dc2626;
+        background: linear-gradient(to right, #fef2f2 0%, white 15%);
+    }
+
+    .summary-card.paid {
+        border-left-color: #16a34a;
+        background: linear-gradient(to right, #f0fdf4 0%, white 15%);
+    }
+
+    .summary-card.pending {
+        border-left-color: #ea580c;
+        background: linear-gradient(to right, #fff7ed 0%, white 15%);
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .summary-card.due .summary-icon {
+        background: #fee2e2;
+    }
+
+    .summary-card.paid .summary-icon {
+        background: #dcfce7;
+    }
+
+    .summary-card.pending .summary-icon {
+        background: #ffedd5;
+    }
+
+    .summary-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .summary-card.due .summary-value {
+        color: #dc2626;
+    }
+
+    .summary-card.paid .summary-value {
+        color: #16a34a;
+    }
+
+    .summary-card.pending .summary-value {
+        color: #ea580c;
+    }
+
+    /* Fee Details Section */
+    .fee-details {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .fee-breakdown {
+        margin-bottom: 1.5rem;
+    }
+
+    .fee-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .fee-item:last-child {
+        border-bottom: none;
+    }
+
+    .fee-item-label {
+        font-size: 0.938rem;
+        color: var(--text-secondary);
+    }
+
+    .fee-item-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .fee-total {
+        background: linear-gradient(135deg, var(--primary-color), #1e40af);
+        padding: 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .fee-total-label {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .fee-total-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    /* Payment Button */
+    .payment-section {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .pay-btn {
+        flex: 1;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+
+    .download-btn {
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .download-btn:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    /* Payment History */
+    .payment-history {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .history-table th {
+        text-align: left;
+        padding: 1rem;
+        background: #f8fafc;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.938rem;
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .history-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-pending {
+        background: #ffedd5;
+        color: #ea580c;
+    }
+
+    .status-failed {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .receipt-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .receipt-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Alert Box */
+    .alert-box {
+        background: #fef2f2;
+        border-left: 4px solid #dc2626;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alert-icon {
+        font-size: 1.5rem;
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-weight: 600;
+        color: #dc2626;
+        margin-bottom: 0.25rem;
+    }
+
+    .alert-text {
+        font-size: 0.875rem;
+        color: #991b1b;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .fee-container {
+            padding: 1rem;
+        }
+
+        .fee-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-section {
+            flex-direction: column;
+        }
+
+        .history-table {
+            font-size: 0.813rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+
+<div class="fee-container">
+    <!-- Header -->
+    <div class="fee-header">
+        <h1 class="fee-title">💳 Fee Payment</h1>
+        <p class="fee-subtitle">Manage your semester fees and view payment history</p>
+    </div>
+
+    <!-- Alert for Due Payment -->
+    <div class="alert-box">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <div class="alert-title">Payment Due Soon!</div>
+            <div class="alert-text">Your semester fee payment is due by November 15, 2025. Pay now to avoid late charges.</div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="fee-summary">
+        <div class="summary-card due">
+            <div class="summary-icon">💰</div>
+            <div class="summary-label">Total Due</div>
+            <div class="summary-value">₹85,000</div>
+        </div>
+
+        <div class="summary-card paid">
+            <div class="summary-icon">✓</div>
+            <div class="summary-label">Total Paid</div>
+            <div class="summary-value">₹1,70,000</div>
+        </div>
+
+        <div class="summary-card pending">
+            <div class="summary-icon">⏱️</div>
+            <div class="summary-label">Pending Amount</div>
+            <div class="summary-value">₹85,000</div>
+        </div>
+    </div>
+
+    <!-- Fee Details -->
+    <div class="fee-details">
+        <h2 class="section-title">Current Semester Fee Breakdown</h2>
+        
+        <div class="fee-breakdown">
+            <div class="fee-item">
+                <span class="fee-item-label">Tuition Fee</span>
+                <span class="fee-item-value">₹65,000</span>
+            </div>
+            <div class="fee-item">
+                <span class="fee-item-label">Library Fee</span>
+                <span class="fee-item-value">₹5,000</span>
+            </div>
+            <div class="fee-item">
+                <span class="fee-item-label">Laboratory Fee</span>
+                <span class="fee-item-value">₹8,000</span>
+            </div>
+            <div class="fee-item">
+                <span class="fee-item-label">Examination Fee</span>
+                <span class="fee-item-value">₹3,000</span>
+            </div>
+            <div class="fee-item">
+                <span class="fee-item-label">Student Activity Fee</span>
+                <span class="fee-item-value">₹2,000</span>
+            </div>
+            <div class="fee-item">
+                <span class="fee-item-label">Development Fee</span>
+                <span class="fee-item-value">₹2,000</span>
+            </div>
+        </div>
+
+        <div class="fee-total">
+            <span class="fee-total-label">Total Amount Due</span>
+            <span class="fee-total-value">₹85,000</span>
+        </div>
+
+        <div class="payment-section">
+            <button class="pay-btn">
+                💳 Pay Now
+            </button>
+            <button class="download-btn">
+                📄 Download Fee Structure
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="payment-history">
+        <h2 class="section-title">Payment History</h2>
+        
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#TXN2025089456</td>
+                    <td>August 15, 2025</td>
+                    <td>Semester Fee - Fall 2025</td>
+                    <td>₹85,000</td>
+                    <td><span class="status-badge status-success">✓ Paid</span></td>
+                    <td><a href="#" class="receipt-link">Download</a></td>
+                </tr>
+                <tr>
+                    <td>#TXN2025089455</td>
+                    <td>August 14, 2025</td>
+                    <td>Hostel Fee - Fall 2025</td>
+                    <td>₹45,000</td>
+                    <td><span class="status-badge status-success">✓ Paid</span></td>
+                    <td><a href="#" class="receipt-link">Download</a></td>
+                </tr>
+                <tr>
+                    <td>#TXN2025034521</td>
+                    <td>February 10, 2025</td>
+                    <td>Semester Fee - Spring 2025</td>
+                    <td>₹85,000</td>
+                    <td><span class="status-badge status-success">✓ Paid</span></td>
+                    <td><a href="#" class="receipt-link">Download</a></td>
+                </tr>
+                <tr>
+                    <td>#TXN2024098742</td>
+                    <td>August 20, 2024</td>
+                    <td>Semester Fee - Fall 2024</td>
+                    <td>₹85,000</td>
+                    <td><span class="status-badge status-success">✓ Paid</span></td>
+                    <td><a href="#" class="receipt-link">Download</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Payment button functionality
+    document.querySelector('.pay-btn').addEventListener('click', function() {
+        alert('Payment gateway will be integrated here.\n\nYou will be redirected to a secure payment portal to complete the transaction.');
+    });
+
+    // Download button functionality
+    document.querySelector('.download-btn').addEventListener('click', function() {
+        alert('Fee structure PDF will be downloaded.');
+    });
+
+    // Receipt download functionality
+    document.querySelectorAll('.receipt-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Receipt PDF will be downloaded.');
+        });
+    });
+</script>
+{% endblock %}

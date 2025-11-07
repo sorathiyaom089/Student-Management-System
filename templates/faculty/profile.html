@@ -1,0 +1,256 @@
+{% extends "base_faculty.html" %}
+
+{% block title %}My Profile{% endblock %}
+{% block breadcrumb %}My Profile{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        padding: 1rem 2rem 2rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .profile-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .profile-info-main {
+        flex: 1;
+    }
+
+    .profile-name-large {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-meta {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-size: 0.938rem;
+    }
+
+    .status-badge-large {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #dcfce7;
+        color: #15803d;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-dot-large {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #16a34a;
+    }
+
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        width: 150px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .info-value {
+        flex: 1;
+        font-size: 0.938rem;
+        color: #334155;
+    }
+
+    /* Edit Button */
+    .edit-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.938rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar-large">
+            {{ faculty.first_name[0] }}{{ faculty.last_name[0] }}
+        </div>
+        <div class="profile-info-main">
+            <h1 class="profile-name-large">{{ faculty.first_name }} {{ faculty.last_name }}</h1>
+            <div class="profile-meta">
+                <div class="meta-item">
+                    🆔 Faculty ID: {{ faculty.faculty_id }}
+                </div>
+                <div class="meta-item">
+                    🏢 {{ faculty.department }}
+                </div>
+                <div class="meta-item">
+                    🎓 {{ faculty.qualification }}
+                </div>
+            </div>
+            <div class="status-badge-large">
+                <span class="status-dot-large"></span>
+                Active
+            </div>
+        </div>
+    </div>
+
+    <!-- Information Cards -->
+    <div class="info-grid">
+        <!-- Personal Information -->
+        <div class="info-card">
+            <h2 class="info-card-title">Personal Information</h2>
+            <div class="info-row">
+                <div class="info-label">First Name</div>
+                <div class="info-value">{{ faculty.first_name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Last Name</div>
+                <div class="info-value">{{ faculty.last_name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Email</div>
+                <div class="info-value">{{ faculty.email or 'Not provided' }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Phone</div>
+                <div class="info-value">{{ faculty.phone or 'Not provided' }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value">{{ faculty.date_of_birth or 'Not provided' }}</div>
+            </div>
+        </div>
+
+        <!-- Professional Information -->
+        <div class="info-card">
+            <h2 class="info-card-title">Professional Information</h2>
+            <div class="info-row">
+                <div class="info-label">Faculty ID</div>
+                <div class="info-value">{{ faculty.faculty_id }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Department</div>
+                <div class="info-value">{{ faculty.department }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Qualification</div>
+                <div class="info-value">{{ faculty.qualification }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Specialization</div>
+                <div class="info-value">{{ faculty.specialization or 'Not provided' }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Date of Joining</div>
+                <div class="info-value">{{ faculty.date_of_joining or 'Not provided' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="text-align: right;">
+        <button class="edit-btn">✏️ Edit Profile</button>
+    </div>
+</div>
+
+<script>
+    document.querySelector('.edit-btn').addEventListener('click', function() {
+        alert('Profile editing functionality will be implemented here.');
+    });
+</script>
+{% endblock %}
