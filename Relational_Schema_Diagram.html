@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relational Schema - Student Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.125rem;
+        }
+
+        .schema-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--table-color);
+        }
+
+        .table-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-header {
+            background: var(--table-color);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .table-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-icon {
+            font-size: 1.5rem;
+        }
+
+        .table-description {
+            font-size: 0.875rem;
+            opacity: 0.95;
+        }
+
+        .table-body {
+            padding: 1.5rem;
+        }
+
+        .attribute {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s ease;
+        }
+
+        .attribute:hover {
+            background: #f8fafc;
+        }
+
+        .attribute-name {
+            flex: 1;
+            font-weight: 500;
+            color: #1e293b;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .attribute-type {
+            color: #64748b;
+            font-size: 0.813rem;
+            margin-right: 0.75rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.688rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-pk {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-fk {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-uk {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-nn {
+            background: #ede9fe;
+            color: #6b21a8;
+        }
+
+        /* Color coding for different table types */
+        .auth-table { --table-color: #3b82f6; }
+        .core-table { --table-color: #10b981; }
+        .junction-table { --table-color: #8b5cf6; }
+        .academic-table { --table-color: #f59e0b; }
+        .admin-table { --table-color: #ef4444; }
+
+        .legend {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .legend h3 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .relationships {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .relationships h3 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .relationship-item {
+            padding: 1rem;
+            background: #f8fafc;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .relationship-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .relationship-desc {
+            color: #64748b;
+            font-size: 0.938rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .schema-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📐 Relational Schema Diagram</h1>
+            <p class="subtitle">Student Management System Database Structure</p>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>📖 Key & Constraint Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="badge badge-pk">PK</span>
+                    <span>Primary Key</span>
+                </div>
+                <div class="legend-item">
+                    <span class="badge badge-fk">FK</span>
+                    <span>Foreign Key</span>
+                </div>
+                <div class="legend-item">
+                    <span class="badge badge-uk">UK</span>
+                    <span>Unique Key</span>
+                </div>
+                <div class="legend-item">
+                    <span class="badge badge-nn">NN</span>
+                    <span>Not Null</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schema Tables Grid -->
+        <div class="schema-grid">
+            <!-- Users Table -->
+            <div class="table-card auth-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">👤</span>
+                        Users
+                    </div>
+                    <div class="table-description">Authentication & Authorization</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">user_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">username</span>
+                        <span class="attribute-type">VARCHAR(50)</span>
+                        <span class="badge badge-uk">UK</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">password</span>
+                        <span class="attribute-type">VARCHAR(255)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">role</span>
+                        <span class="attribute-type">ENUM</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">email</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                        <span class="badge badge-uk">UK</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">created_at</span>
+                        <span class="attribute-type">TIMESTAMP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="table-card core-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">👨‍🎓</span>
+                        Students
+                    </div>
+                    <div class="table-description">Student Information & Profiles</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">student_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">user_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                        <span class="badge badge-uk">UK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">first_name</span>
+                        <span class="attribute-type">VARCHAR(50)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">last_name</span>
+                        <span class="attribute-type">VARCHAR(50)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">date_of_birth</span>
+                        <span class="attribute-type">DATE</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">gender</span>
+                        <span class="attribute-type">ENUM</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">phone</span>
+                        <span class="attribute-type">VARCHAR(15)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">address</span>
+                        <span class="attribute-type">TEXT</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">enrollment_date</span>
+                        <span class="attribute-type">DATE</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">program</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">semester</span>
+                        <span class="attribute-type">INT</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">status</span>
+                        <span class="attribute-type">ENUM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Table -->
+            <div class="table-card core-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">👨‍🏫</span>
+                        Faculty
+                    </div>
+                    <div class="table-description">Faculty Members & Staff</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">faculty_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">user_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                        <span class="badge badge-uk">UK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">first_name</span>
+                        <span class="attribute-type">VARCHAR(50)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">last_name</span>
+                        <span class="attribute-type">VARCHAR(50)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">department</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">phone</span>
+                        <span class="attribute-type">VARCHAR(15)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">email</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">qualification</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">hire_date</span>
+                        <span class="attribute-type">DATE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Table -->
+            <div class="table-card core-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">📚</span>
+                        Courses
+                    </div>
+                    <div class="table-description">Course Catalog & Information</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_code</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                        <span class="badge badge-uk">UK</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_name</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">credits</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">department</span>
+                        <span class="attribute-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">semester</span>
+                        <span class="attribute-type">INT</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">description</span>
+                        <span class="attribute-type">TEXT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enrollment Table -->
+            <div class="table-card junction-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">📝</span>
+                        Enrollment
+                    </div>
+                    <div class="table-description">Student-Course Enrollment Records</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">enrollment_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">student_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">enrollment_date</span>
+                        <span class="attribute-type">DATE</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">academic_year</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">status</span>
+                        <span class="attribute-type">ENUM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course_Assignment Table -->
+            <div class="table-card junction-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">🎓</span>
+                        Course_Assignment
+                    </div>
+                    <div class="table-description">Faculty-Course Teaching Assignment</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">assignment_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">faculty_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">academic_year</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">semester</span>
+                        <span class="attribute-type">INT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="table-card academic-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">✅</span>
+                        Attendance
+                    </div>
+                    <div class="table-description">Student Attendance Tracking</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">attendance_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">student_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">attendance_date</span>
+                        <span class="attribute-type">DATE</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">status</span>
+                        <span class="attribute-type">ENUM</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">remarks</span>
+                        <span class="attribute-type">TEXT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grades Table -->
+            <div class="table-card academic-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">📊</span>
+                        Grades
+                    </div>
+                    <div class="table-description">Assessment & Grade Management</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">grade_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">student_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">assessment_type</span>
+                        <span class="attribute-type">ENUM</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">marks_obtained</span>
+                        <span class="attribute-type">DECIMAL(5,2)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">max_marks</span>
+                        <span class="attribute-type">DECIMAL(5,2)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">grade_letter</span>
+                        <span class="attribute-type">VARCHAR(2)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">academic_year</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fees Table -->
+            <div class="table-card admin-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">💰</span>
+                        Fees
+                    </div>
+                    <div class="table-description">Fee Payment Management</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">fee_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">student_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">academic_year</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">semester</span>
+                        <span class="attribute-type">INT</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">total_amount</span>
+                        <span class="attribute-type">DECIMAL(10,2)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">paid_amount</span>
+                        <span class="attribute-type">DECIMAL(10,2)</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">payment_date</span>
+                        <span class="attribute-type">DATE</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">status</span>
+                        <span class="attribute-type">ENUM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Announcements Table -->
+            <div class="table-card admin-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">📢</span>
+                        Announcements
+                    </div>
+                    <div class="table-description">System Notices & Updates</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">announcement_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">title</span>
+                        <span class="attribute-type">VARCHAR(200)</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">content</span>
+                        <span class="attribute-type">TEXT</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">posted_by</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">posted_date</span>
+                        <span class="attribute-type">TIMESTAMP</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">target_audience</span>
+                        <span class="attribute-type">ENUM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timetable Table -->
+            <div class="table-card academic-table">
+                <div class="table-header">
+                    <div class="table-name">
+                        <span class="table-icon">🕐</span>
+                        Timetable
+                    </div>
+                    <div class="table-description">Class Scheduling</div>
+                </div>
+                <div class="table-body">
+                    <div class="attribute">
+                        <span class="attribute-name">timetable_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-pk">PK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">course_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">faculty_id</span>
+                        <span class="attribute-type">INT</span>
+                        <span class="badge badge-fk">FK</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">day_of_week</span>
+                        <span class="attribute-type">ENUM</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">start_time</span>
+                        <span class="attribute-type">TIME</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">end_time</span>
+                        <span class="attribute-type">TIME</span>
+                        <span class="badge badge-nn">NN</span>
+                    </div>
+                    <div class="attribute">
+                        <span class="attribute-name">room_number</span>
+                        <span class="attribute-type">VARCHAR(20)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relationships Section -->
+        <div class="relationships">
+            <h3>🔗 Foreign Key Relationships</h3>
+            
+            <div class="relationship-item">
+                <div class="relationship-title">Users → Students (1:1)</div>
+                <div class="relationship-desc">
+                    Students.user_id → Users.user_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Users → Faculty (1:1)</div>
+                <div class="relationship-desc">
+                    Faculty.user_id → Users.user_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Students → Enrollment (1:N)</div>
+                <div class="relationship-desc">
+                    Enrollment.student_id → Students.student_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Courses → Enrollment (1:N)</div>
+                <div class="relationship-desc">
+                    Enrollment.course_id → Courses.course_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Faculty → Course_Assignment (1:N)</div>
+                <div class="relationship-desc">
+                    Course_Assignment.faculty_id → Faculty.faculty_id [ON DELETE SET NULL]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Courses → Course_Assignment (1:N)</div>
+                <div class="relationship-desc">
+                    Course_Assignment.course_id → Courses.course_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Students → Attendance (1:N)</div>
+                <div class="relationship-desc">
+                    Attendance.student_id → Students.student_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Courses → Attendance (1:N)</div>
+                <div class="relationship-desc">
+                    Attendance.course_id → Courses.course_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Students → Grades (1:N)</div>
+                <div class="relationship-desc">
+                    Grades.student_id → Students.student_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Courses → Grades (1:N)</div>
+                <div class="relationship-desc">
+                    Grades.course_id → Courses.course_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Students → Fees (1:N)</div>
+                <div class="relationship-desc">
+                    Fees.student_id → Students.student_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Users → Announcements (1:N)</div>
+                <div class="relationship-desc">
+                    Announcements.posted_by → Users.user_id [ON DELETE SET NULL]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Courses → Timetable (1:N)</div>
+                <div class="relationship-desc">
+                    Timetable.course_id → Courses.course_id [ON DELETE CASCADE]
+                </div>
+            </div>
+
+            <div class="relationship-item">
+                <div class="relationship-title">Faculty → Timetable (1:N)</div>
+                <div class="relationship-desc">
+                    Timetable.faculty_id → Faculty.faculty_id [ON DELETE SET NULL]
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: white; padding: 2rem; margin-top: 2rem;">
+            <p style="font-size: 1.125rem; font-weight: 600;">🎓 Student Management System</p>
+            <p style="opacity: 0.9; margin-top: 0.5rem;">Relational Schema Documentation v2.0</p>
+            <p style="opacity: 0.8; margin-top: 0.5rem; font-size: 0.875rem;">
+                <a href="https://github.com/sorathiyaom089/Student-Management-System.git" 
+                   style="color: white; text-decoration: underline;">View on GitHub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth animations on scroll
+        const cards = document.querySelectorAll('.table-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    </script>
+</body>
+</html>
+
