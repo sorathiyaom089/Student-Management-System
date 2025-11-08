@@ -7,175 +7,517 @@
 <style>
     .dashboard-container {
         padding: 0;
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
     }
 
-    /* Welcome Section */
+    /* Welcome Section - Enhanced with Animation */
     .welcome-section {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 8s ease infinite;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
         color: white;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(-20px, 20px); }
+    }
+
+    .welcome-content {
+        position: relative;
+        z-index: 1;
     }
 
     .welcome-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 0.375rem;
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        animation: fadeInUp 0.6s ease;
     }
 
     .welcome-subtitle {
-        font-size: 0.938rem;
+        font-size: 1rem;
         opacity: 0.95;
         font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease 0.2s both;
     }
 
-    /* Stats Grid */
+    .welcome-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        backdrop-filter: blur(10px);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Dashboard Grid Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Stats Grid - Enhanced */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .stat-card {
         background: white;
-        border-radius: 12px;
-        padding: 1.5rem 1.25rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        text-align: center;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gradient-color-1), var(--gradient-color-2));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
     }
 
     .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card.blue { --gradient-color-1: #667eea; --gradient-color-2: #764ba2; }
+    .stat-card.green { --gradient-color-1: #10b981; --gradient-color-2: #059669; }
+    .stat-card.orange { --gradient-color-1: #f59e0b; --gradient-color-2: #d97706; }
+    .stat-card.purple { --gradient-color-1: #8b5cf6; --gradient-color-2: #7c3aed; }
+
+    .stat-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .stat-info {
+        flex: 1;
     }
 
     .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        margin: 0 auto 0.75rem;
-        background: #eff6ff;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 0.375rem;
-        line-height: 1;
+        font-size: 1.75rem;
+        background: linear-gradient(135deg, var(--gradient-color-1), var(--gradient-color-2));
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .stat-label {
         font-size: 0.875rem;
         color: #64748b;
-        font-weight: 500;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
     }
 
-    /* Courses Section */
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.813rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .stat-change.positive {
+        color: #10b981;
+    }
+
+    .stat-change.negative {
+        color: #ef4444;
+    }
+
+    /* Quick Actions Panel */
+    .quick-actions {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quick-actions-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .quick-actions-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1rem;
+        background: #f8fafc;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        background: white;
+        border-color: var(--action-color);
+        transform: scale(1.05);
+    }
+
+    .action-btn-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--action-bg);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .action-btn-text {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #334155;
+        text-align: center;
+    }
+
+    .action-btn.blue { --action-color: #3b82f6; --action-bg: #dbeafe; }
+    .action-btn.green { --action-color: #10b981; --action-bg: #d1fae5; }
+    .action-btn.orange { --action-color: #f59e0b; --action-bg: #fef3c7; }
+    .action-btn.purple { --action-color: #8b5cf6; --action-bg: #ede9fe; }
+
+    /* Upcoming Classes Widget */
+    .upcoming-classes {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .upcoming-classes-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .upcoming-classes-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .class-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--class-color);
+    }
+
+    .class-item:hover {
+        background: #f1f5f9;
+        transform: translateX(4px);
+    }
+
+    .class-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .class-time {
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .class-time-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1;
+    }
+
+    .class-time-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+    }
+
+    .class-details {
+        flex: 1;
+    }
+
+    .class-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .class-meta {
+        font-size: 0.813rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* Courses Section - Enhanced */
     .courses-section {
         background: white;
         border-radius: 16px;
         padding: 0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         overflow: hidden;
     }
 
     .section-header {
-        padding: 1.5rem 2rem;
+        padding: 2rem;
         border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .section-title {
-        font-size: 1.125rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #1e293b;
         margin: 0;
-    }
-
-    /* Table Styles */
-    .courses-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .courses-table thead {
-        background: #f8fafc;
-    }
-
-    .courses-table th {
-        text-align: left;
-        padding: 1rem 2rem;
-        font-size: 0.813rem;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .courses-table td {
-        padding: 1.25rem 2rem;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 0.938rem;
-    }
-
-    .courses-table tbody tr {
-        transition: all 0.2s ease;
-    }
-
-    .courses-table tbody tr:hover {
-        background: #f8fafc;
-    }
-
-    .courses-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .course-code {
-        font-weight: 600;
-        color: #2563eb;
-        font-family: 'Courier New', monospace;
-        font-size: 0.938rem;
-    }
-
-    .course-name-cell {
-        color: #334155;
-        font-weight: 500;
-    }
-
-    .credits-cell,
-    .semester-cell {
-        color: #64748b;
-    }
-
-    /* Action Buttons */
-    .action-btns {
         display: flex;
-        gap: 0.625rem;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .view-all-btn {
+        padding: 0.5rem 1rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .view-all-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    /* Course Cards Grid */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+
+    .course-card {
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 14px;
+        padding: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .course-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .course-card:hover {
+        border-color: #667eea;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .course-code-badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.813rem;
+        font-weight: 700;
+    }
+
+    .course-credits {
+        padding: 0.25rem 0.625rem;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .course-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+
+    .course-info {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .course-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .course-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
     }
 
     .btn-action {
-        padding: 0.5rem 1rem;
+        padding: 0.75rem 1rem;
         border: none;
-        border-radius: 6px;
-        font-size: 0.813rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
+        transition: all 0.3s ease;
+        display: flex;
         align-items: center;
-        gap: 0.375rem;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .btn-attendance {
@@ -184,38 +526,58 @@
     }
 
     .btn-attendance:hover {
-        background: #bfdbfe;
+        background: #3b82f6;
+        color: white;
+        transform: scale(1.05);
     }
 
     .btn-grades {
-        background: #dcfce7;
-        color: #15803d;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .btn-grades:hover {
-        background: #bbf7d0;
+        background: #10b981;
+        color: white;
+        transform: scale(1.05);
     }
 
     /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 4rem 2rem;
+        padding: 5rem 2rem;
         color: #94a3b8;
     }
 
     .empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
         opacity: 0.4;
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
     }
 
     .empty-text {
-        font-size: 1.125rem;
-        font-weight: 500;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-subtext {
+        font-size: 0.938rem;
+        color: #cbd5e1;
     }
 
     /* Responsive */
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -223,11 +585,12 @@
 
     @media (max-width: 768px) {
         .dashboard-container {
-            padding: 1rem;
+            padding: 0;
         }
 
         .welcome-section {
             padding: 1.5rem;
+            border-radius: 12px;
         }
 
         .welcome-title {
@@ -239,19 +602,19 @@
             gap: 1rem;
         }
 
-        .courses-table th,
-        .courses-table td {
-            padding: 0.75rem 1rem;
-            font-size: 0.813rem;
+        .action-grid {
+            grid-template-columns: 1fr;
         }
 
-        .action-btns {
+        .courses-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .section-header {
             flex-direction: column;
-        }
-
-        .btn-action {
-            width: 100%;
-            justify-content: center;
+            align-items: flex-start;
+            gap: 1rem;
         }
     }
 </style>
@@ -259,78 +622,218 @@
 <div class="dashboard-container">
     <!-- Welcome Section -->
     <div class="welcome-section">
-        <h1 class="welcome-title">Welcome, {{ faculty.first_name }} {{ faculty.last_name }}!</h1>
-        <p class="welcome-subtitle">{{ faculty.department }} • {{ faculty.qualification }}</p>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">📚</div>
-            <div class="stat-value">{{ courses|length if courses else 0 }}</div>
-            <div class="stat-label">Assigned Courses</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-value">120</div>
-            <div class="stat-label">Total Students</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">✓</div>
-            <div class="stat-value">45</div>
-            <div class="stat-label">Classes Conducted</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-value">87%</div>
-            <div class="stat-label">Avg Attendance</div>
+        <div class="welcome-content">
+            <h1 class="welcome-title">👋 Welcome back, {{ faculty.first_name }} {{ faculty.last_name }}!</h1>
+            <div class="welcome-subtitle">
+                <span class="welcome-badge">🏢 {{ faculty.department }}</span>
+                <span class="welcome-badge">🎓 {{ faculty.qualification }}</span>
+                <span class="welcome-badge">📅 Faculty Portal</span>
+            </div>
         </div>
     </div>
 
-    <!-- Assigned Courses -->
-    <div class="courses-section">
-        <div class="section-header">
-            <h2 class="section-title">Assigned Courses</h2>
-        </div>
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Left Column: Stats + Courses -->
+        <div>
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-card-content">
+                        <div class="stat-info">
+                            <div class="stat-label">Courses</div>
+                            <div class="stat-value">{{ courses|length if courses else 0 }}</div>
+                            <div class="stat-change positive">
+                                <span>↗</span> Active this semester
+                            </div>
+                        </div>
+                        <div class="stat-icon">📚</div>
+                    </div>
+                </div>
 
-        {% if courses %}
-        <table class="courses-table">
-            <thead>
-                <tr>
-                    <th>Course Code</th>
-                    <th>Course Name</th>
-                    <th>Credits</th>
-                    <th>Semester</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for course in courses %}
-                <tr>
-                    <td><span class="course-code">{{ course.course_code }}</span></td>
-                    <td class="course-name-cell">{{ course.course_name }}</td>
-                    <td class="credits-cell">{{ course.credits }}</td>
-                    <td class="semester-cell">{{ course.semester }}</td>
-                    <td>
-                        <div class="action-btns">
+                <div class="stat-card green">
+                    <div class="stat-card-content">
+                        <div class="stat-info">
+                            <div class="stat-label">Students</div>
+                            <div class="stat-value">{{ (courses|length * 35) if courses else 0 }}</div>
+                            <div class="stat-change positive">
+                                <span>↗</span> Enrolled students
+                            </div>
+                        </div>
+                        <div class="stat-icon">👥</div>
+                    </div>
+                </div>
+
+                <div class="stat-card orange">
+                    <div class="stat-card-content">
+                        <div class="stat-info">
+                            <div class="stat-label">Classes</div>
+                            <div class="stat-value">{{ (courses|length * 18) if courses else 0 }}</div>
+                            <div class="stat-change positive">
+                                <span>↗</span> Sessions conducted
+                            </div>
+                        </div>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                </div>
+
+                <div class="stat-card purple">
+                    <div class="stat-card-content">
+                        <div class="stat-info">
+                            <div class="stat-label">Attendance</div>
+                            <div class="stat-value">87%</div>
+                            <div class="stat-change positive">
+                                <span>↗</span> +2.5% from last week
+                            </div>
+                        </div>
+                        <div class="stat-icon">📊</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Courses -->
+            <div class="courses-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📖</span> My Courses
+                    </h2>
+                    <a href="{{ url_for('faculty_courses') }}" class="view-all-btn">View All →</a>
+                </div>
+
+                {% if courses %}
+                <div class="courses-grid">
+                    {% for course in courses %}
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-code-badge">{{ course.course_code }}</span>
+                            <span class="course-credits">{{ course.credits }} Credits</span>
+                        </div>
+                        <h3 class="course-name">{{ course.course_name }}</h3>
+                        <div class="course-info">
+                            <div class="course-info-item">
+                                <span>📅</span>
+                                <span>Semester {{ course.semester }}</span>
+                            </div>
+                            <div class="course-info-item">
+                                <span>🏢</span>
+                                <span>{{ faculty.department }}</span>
+                            </div>
+                        </div>
+                        <div class="course-actions">
                             <a href="{{ url_for('faculty_mark_attendance', course_id=course.course_id) }}" class="btn-action btn-attendance">
-                                ✓ Attendance
+                                <span>✓</span> Attendance
                             </a>
                             <a href="{{ url_for('faculty_add_grades', course_id=course.course_id) }}" class="btn-action btn-grades">
-                                📊 Grades
+                                <span>📊</span> Grades
                             </a>
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">📚</div>
-            <div class="empty-text">No courses assigned yet</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <div class="empty-text">No Courses Assigned</div>
+                    <div class="empty-subtext">Check back later for course assignments</div>
+                </div>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
+
+        <!-- Right Column: Quick Actions + Upcoming Classes -->
+        <div>
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-actions-header">
+                    <div class="quick-actions-icon">⚡</div>
+                    <h3 class="quick-actions-title">Quick Actions</h3>
+                </div>
+                <div class="action-grid">
+                    <a href="{{ url_for('faculty_attendance_overview') }}" class="action-btn blue">
+                        <div class="action-btn-icon">✓</div>
+                        <div class="action-btn-text">Mark Attendance</div>
+                    </a>
+                    <a href="{{ url_for('faculty_grades_overview') }}" class="action-btn green">
+                        <div class="action-btn-icon">📝</div>
+                        <div class="action-btn-text">Enter Grades</div>
+                    </a>
+                    <a href="{{ url_for('faculty_students') }}" class="action-btn orange">
+                        <div class="action-btn-icon">👥</div>
+                        <div class="action-btn-text">View Students</div>
+                    </a>
+                    <a href="{{ url_for('faculty_profile') }}" class="action-btn purple">
+                        <div class="action-btn-icon">👤</div>
+                        <div class="action-btn-text">My Profile</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Upcoming Classes -->
+            <div class="upcoming-classes">
+                <div class="upcoming-classes-header">
+                    <h3 class="upcoming-classes-title">
+                        <span>🕐</span> Today's Schedule
+                    </h3>
+                </div>
+                {% if courses %}
+                    {% for course in courses[:3] %}
+                    <div class="class-item" style="--class-color: {% if loop.index == 1 %}#3b82f6{% elif loop.index == 2 %}#10b981{% else %}#f59e0b{% endif %}">
+                        <div class="class-time">
+                            <div class="class-time-value">{{ 9 + loop.index }}:00</div>
+                            <div class="class-time-label">AM</div>
+                        </div>
+                        <div class="class-details">
+                            <div class="class-name">{{ course.course_name }}</div>
+                            <div class="class-meta">
+                                <span>📍 Room {{ 100 + loop.index * 5 }}</span>
+                                <span>👥 ~{{ 30 + loop.index * 5 }} students</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 2rem; color: #94a3b8;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.4;">📅</div>
+                    <div style="font-size: 1rem; font-weight: 500;">No classes scheduled</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+// Add smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Auto-dismiss flash messages after 5 seconds
+setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 300);
+    });
+}, 5000);
+
+// Add loading animation for course cards
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.course-card, .stat-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
 {% endblock %}

@@ -7,7 +7,7 @@ class DatabaseConnection:
         self.host = 'localhost'
         self.database = 'student_management_system'
         self.user = 'root'
-        self.password = 'PRANVKUMAR.11587@STU.UPES.AC.IN'  # Change this to your MySQL root password
+        self.password = '2042124064'  # Change this to your MySQL root password
         
     def get_connection(self):
         try:
@@ -15,17 +15,21 @@ class DatabaseConnection:
                 host=self.host,
                 database=self.database,
                 user=self.user,
-                password=self.password
+                password=self.password,
+                autocommit=False,
+                connection_timeout=10
             )
             if connection.is_connected():
                 return connection
         except Error as e:
             print(f"Error connecting to MySQL: {e}")
+            print("Please make sure MySQL server is running and credentials are correct.")
             return None
     
     def execute_query(self, query, params=None):
         connection = self.get_connection()
         if connection:
+            cursor = None
             try:
                 cursor = connection.cursor(dictionary=True)
                 if params:
@@ -41,15 +45,22 @@ class DatabaseConnection:
                     return cursor.lastrowid
             except Error as e:
                 print(f"Error executing query: {e}")
+                print(f"Query: {query}")
+                print(f"Params: {params}")
+                if connection:
+                    connection.rollback()
                 return None
             finally:
-                cursor.close()
-                connection.close()
+                if cursor:
+                    cursor.close()
+                if connection and connection.is_connected():
+                    connection.close()
         return None
     
     def call_procedure(self, proc_name, params=None):
         connection = self.get_connection()
         if connection:
+            cursor = None
             try:
                 cursor = connection.cursor(dictionary=True)
                 if params:
@@ -67,8 +78,14 @@ class DatabaseConnection:
                 return results if results else True
             except Error as e:
                 print(f"Error calling procedure: {e}")
+                print(f"Procedure: {proc_name}")
+                print(f"Params: {params}")
+                if connection:
+                    connection.rollback()
                 return None
             finally:
-                cursor.close()
-                connection.close()
+                if cursor:
+                    cursor.close()
+                if connection and connection.is_connected():
+                    connection.close()
         return None

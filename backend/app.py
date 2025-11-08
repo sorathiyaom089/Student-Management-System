@@ -359,7 +359,7 @@ def student_dashboard():
     
     courses = db.execute_query(courses_query, (student_id, student_id, student_id)) or []
     
-    return render_template('student/dashboard_new.html', student=student, courses=courses)
+    return render_template('student/dashboard.html', student=student, courses=courses)
 
 @app.route('/student/profile')
 def student_profile():
@@ -587,44 +587,80 @@ def faculty_dashboard():
     if 'role' not in session or session['role'] != 'faculty':
         return redirect(url_for('login'))
     
-    user_id = session['user_id']
-    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
-    faculty_id = faculty['faculty_id']
-    
-    query = """SELECT c.* FROM Courses c
-               JOIN Course_Assignment ca ON c.course_id = ca.course_id
-               WHERE ca.faculty_id = %s"""
-    
-    courses = db.execute_query(query, (faculty_id,))
-    
-    return render_template('faculty/dashboard.html', faculty=faculty, courses=courses)
+    try:
+        user_id = session['user_id']
+        faculty_result = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))
+        
+        if not faculty_result or len(faculty_result) == 0:
+            flash('Faculty profile not found. Please contact administrator.', 'danger')
+            return redirect(url_for('logout'))
+        
+        faculty = faculty_result[0]
+        faculty_id = faculty['faculty_id']
+        
+        query = """SELECT c.* FROM Courses c
+                   JOIN Course_Assignment ca ON c.course_id = ca.course_id
+                   WHERE ca.faculty_id = %s"""
+        
+        courses = db.execute_query(query, (faculty_id,))
+        if courses is None:
+            courses = []
+        
+        return render_template('faculty/dashboard.html', faculty=faculty, courses=courses)
+    except Exception as e:
+        print(f"Error in faculty_dashboard: {e}")
+        flash('An error occurred loading the dashboard. Please try again.', 'danger')
+        return redirect(url_for('login'))
 
 @app.route('/faculty/profile')
 def faculty_profile():
     if 'role' not in session or session['role'] != 'faculty':
         return redirect(url_for('login'))
     
-    user_id = session['user_id']
-    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
-    
-    return render_template('faculty/profile.html', faculty=faculty)
+    try:
+        user_id = session['user_id']
+        faculty_result = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))
+        
+        if not faculty_result or len(faculty_result) == 0:
+            flash('Faculty profile not found.', 'danger')
+            return redirect(url_for('logout'))
+        
+        faculty = faculty_result[0]
+        return render_template('faculty/profile.html', faculty=faculty)
+    except Exception as e:
+        print(f"Error in faculty_profile: {e}")
+        flash('An error occurred. Please try again.', 'danger')
+        return redirect(url_for('faculty_dashboard'))
 
 @app.route('/faculty/courses')
 def faculty_courses():
     if 'role' not in session or session['role'] != 'faculty':
         return redirect(url_for('login'))
     
-    user_id = session['user_id']
-    faculty = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))[0]
-    faculty_id = faculty['faculty_id']
-    
-    query = """SELECT c.* FROM Courses c
-               JOIN Course_Assignment ca ON c.course_id = ca.course_id
-               WHERE ca.faculty_id = %s"""
-    
-    courses = db.execute_query(query, (faculty_id,))
-    
-    return render_template('faculty/courses.html', courses=courses)
+    try:
+        user_id = session['user_id']
+        faculty_result = db.execute_query("SELECT * FROM Faculty WHERE user_id = %s", (user_id,))
+        
+        if not faculty_result or len(faculty_result) == 0:
+            flash('Faculty profile not found.', 'danger')
+            return redirect(url_for('logout'))
+        
+        faculty = faculty_result[0]
+        faculty_id = faculty['faculty_id']
+        
+        query = """SELECT c.* FROM Courses c
+                   JOIN Course_Assignment ca ON c.course_id = ca.course_id
+                   WHERE ca.faculty_id = %s"""
+        
+        courses = db.execute_query(query, (faculty_id,))
+        if courses is None:
+            courses = []
+        
+        return render_template('faculty/courses.html', courses=courses)
+    except Exception as e:
+        print(f"Error in faculty_courses: {e}")
+        flash('An error occurred loading courses.', 'danger')
+        return redirect(url_for('faculty_dashboard'))
 
 @app.route('/faculty/lms')
 def faculty_lms():
@@ -753,7 +789,15 @@ def faculty_mark_attendance(course_id):
                WHERE e.course_id = %s AND e.status = 'Enrolled'"""
     
     students = db.execute_query(query, (course_id,))
-    course = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))[0]
+    if students is None:
+        students = []
+    
+    course_result = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))
+    if not course_result or len(course_result) == 0:
+        flash('Course not found.', 'danger')
+        return redirect(url_for('faculty_dashboard'))
+    
+    course = course_result[0]
     
     from datetime import date
     today = date.today().strftime('%Y-%m-%d')
@@ -785,7 +829,15 @@ def faculty_add_grades(course_id):
                WHERE e.course_id = %s AND e.status = 'Enrolled'"""
     
     students = db.execute_query(query, (course_id,))
-    course = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))[0]
+    if students is None:
+        students = []
+    
+    course_result = db.execute_query("SELECT * FROM Courses WHERE course_id = %s", (course_id,))
+    if not course_result or len(course_result) == 0:
+        flash('Course not found.', 'danger')
+        return redirect(url_for('faculty_dashboard'))
+    
+    course = course_result[0]
     
     return render_template('faculty/add_grades.html', students=students, course=course)
 
