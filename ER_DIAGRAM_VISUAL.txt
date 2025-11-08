@@ -1,0 +1,208 @@
+╔══════════════════════════════════════════════════════════════════════════════════════╗
+║                    STUDENT MANAGEMENT SYSTEM - ER DIAGRAM                            ║
+║                             Database: student_management_system                      ║
+╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────┐
+│        USERS 👤         │
+├─────────────────────────┤
+│ PK: user_id            │
+│ UK: username           │
+│ UK: email              │
+│     password           │
+│     role (ENUM)        │
+│     created_at         │
+└──────────┬──────────────┘
+           │
+           ├──────────────┐
+           │              │
+           ▼              ▼
+┌──────────────────┐  ┌──────────────────┐
+│   STUDENTS 👨‍🎓   │  │   FACULTY 👨‍🏫    │
+├──────────────────┤  ├──────────────────┤
+│ PK: student_id   │  │ PK: faculty_id   │
+│ FK: user_id (1:1)│  │ FK: user_id (1:1)│
+│     first_name   │  │     first_name   │
+│     last_name    │  │     last_name    │
+│     date_of_birth│  │     department   │
+│     gender       │  │     phone        │
+│     phone        │  │     email        │
+│     address      │  │     qualification│
+│     enrollment_dt│  │     hire_date    │
+│     program      │  │                  │
+│     semester     │  │                  │
+│     status       │  │                  │
+└────┬─────────────┘  └────┬─────────────┘
+     │                      │
+     │                      │
+     │                      │
+     │    ┌──────────────────────┐
+     │    │     COURSES 📚        │
+     │    ├──────────────────────┤
+     │    │ PK: course_id        │
+     ├────│ UK: course_code      │
+     │    │     course_name      │
+     │    │     credits          │
+     │    │     department       │
+     │    │     semester         │
+     │    │     description      │
+     │    └─────┬────────────────┘
+     │          │
+     │          │
+     ▼          ▼
+┌────────────────────┐      ┌──────────────────────┐
+│   ENROLLMENT 📝    │      │ COURSE_ASSIGNMENT 🎓│
+├────────────────────┤      ├──────────────────────┤
+│ PK: enrollment_id  │      │ PK: assignment_id    │
+│ FK: student_id     │      │ FK: course_id        │
+│ FK: course_id      │      │ FK: faculty_id       │──┐
+│     enrollment_date│      │     academic_year    │  │
+│     academic_year  │      │     semester         │  │
+│     status         │      └──────────────────────┘  │
+└────────────────────┘                                │
+                                                      │
+┌─────────────────────────────────────────────────────┘
+│
+│     ┌──────────────────┐      ┌──────────────────┐
+│     │  ATTENDANCE ✅   │      │    GRADES 📊     │
+│     ├──────────────────┤      ├──────────────────┤
+└─────│ PK: attendance_id│      │ PK: grade_id     │
+      │ FK: student_id   │      │ FK: student_id   │
+      │ FK: course_id    │      │ FK: course_id    │
+      │     attend_date  │      │     assessment_tp│
+      │     status       │      │     marks_obtnd  │
+      │     remarks      │      │     max_marks    │
+      └──────────────────┘      │     grade_letter │
+                                │     academic_year│
+                                └──────────────────┘
+
+┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
+│    FEES 💰       │      │ ANNOUNCEMENTS 📢│      │  TIMETABLE 🕐   │
+├──────────────────┤      ├──────────────────┤      ├──────────────────┤
+│ PK: fee_id       │      │ PK: announ_id    │      │ PK: timetable_id │
+│ FK: student_id   │      │ FK: posted_by    │      │ FK: course_id    │
+│     academic_year│      │     title        │      │ FK: faculty_id   │
+│     semester     │      │     content      │      │     day_of_week  │
+│     total_amount │      │     posted_date  │      │     start_time   │
+│     paid_amount  │      │     target_aud   │      │     end_time     │
+│     payment_date │      └──────────────────┘      │     room_number  │
+│     status       │                                └──────────────────┘
+└──────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            RELATIONSHIP LEGEND
+
+═══════════════════════════════════════════════════════════════════════════════
+
+┌────────┐                                                         ┌────────┐
+│Table A │ ─────────────────────────────────────────────────────> │Table B │
+└────────┘                                                         └────────┘
+           One-to-Many (1:N) - One record in A relates to many in B
+
+
+┌────────┐                                                         ┌────────┐
+│Table A │ ══════════════════════════════════════════════════════ │Table B │
+└────────┘                                                         └────────┘
+           One-to-One (1:1) - One record in A relates to one in B
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                        PRIMARY & FOREIGN KEYS
+
+═══════════════════════════════════════════════════════════════════════════════
+
+PK = Primary Key (Unique identifier for table)
+FK = Foreign Key (Reference to another table)
+UK = Unique Key (Must be unique across table)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            CORE RELATIONSHIPS
+
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Users → Students (1:1)
+   - Each user can be ONE student
+   - Each student has ONE user account
+
+2. Users → Faculty (1:1)
+   - Each user can be ONE faculty member
+   - Each faculty has ONE user account
+
+3. Students → Enrollment → Courses (M:N)
+   - Students can enroll in MANY courses
+   - Courses can have MANY students
+   - Enrollment is the junction table
+
+4. Faculty → Course_Assignment → Courses (M:N)
+   - Faculty can teach MANY courses
+   - Courses can be taught by MANY faculty
+   - Course_Assignment is the junction table
+
+5. Students → Attendance (1:N)
+   - One student has MANY attendance records
+   - Each attendance record belongs to ONE student
+
+6. Students → Grades (1:N)
+   - One student has MANY grade records
+   - Each grade belongs to ONE student
+
+7. Students → Fees (1:N)
+   - One student has MANY fee records
+   - Each fee record belongs to ONE student
+
+8. Courses → Attendance (1:N)
+   - One course has MANY attendance records
+
+9. Courses → Grades (1:N)
+   - One course has MANY grade records
+
+10. Courses → Timetable (1:N)
+    - One course has MANY timetable entries
+
+11. Faculty → Timetable (1:N)
+    - One faculty has MANY timetable entries
+
+12. Users → Announcements (1:N)
+    - One user can post MANY announcements
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                        DATA FLOW EXAMPLE
+
+═══════════════════════════════════════════════════════════════════════════════
+
+STUDENT ENROLLMENT FLOW:
+1. Create User account (role='student')
+2. Create Student record (linked to User via user_id)
+3. Enroll in Courses (create Enrollment records)
+4. Attend classes (create Attendance records)
+5. Receive grades (create Grades records)
+6. Pay fees (create/update Fees records)
+
+FACULTY TEACHING FLOW:
+1. Create User account (role='faculty')
+2. Create Faculty record (linked to User via user_id)
+3. Assign to Courses (create Course_Assignment records)
+4. Schedule classes (create Timetable records)
+5. Mark attendance (create Attendance records)
+6. Enter grades (create Grades records)
+
+ADMIN MANAGEMENT FLOW:
+1. Create User account (role='admin')
+2. Manage all Students, Faculty, Courses
+3. Post Announcements
+4. Generate Reports from all tables
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Created: November 8, 2025
+Version: 2.0 (Enhanced with Modern UI/UX)
+Repository: https://github.com/sorathiyaom089/Student-Management-System.git
+
+═══════════════════════════════════════════════════════════════════════════════
+

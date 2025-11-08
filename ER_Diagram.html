@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System - ER Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.125rem;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--card-color);
+        }
+
+        .info-card.blue { --card-color: #3b82f6; }
+        .info-card.green { --card-color: #10b981; }
+        .info-card.purple { --card-color: #8b5cf6; }
+        .info-card.orange { --card-color: #f59e0b; }
+
+        .info-card h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card li {
+            padding: 0.5rem 0;
+            color: #64748b;
+            font-size: 0.938rem;
+        }
+
+        .info-card li::before {
+            content: '✓';
+            color: var(--card-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .legend {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .legend h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.75rem 0;
+            color: #64748b;
+        }
+
+        .legend-symbol {
+            font-weight: bold;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .diagram-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Student Management System</h1>
+            <p class="subtitle">Entity-Relationship Diagram & Database Schema</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value">11</div>
+                    <div class="stat-label">Tables</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">17</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">11</div>
+                    <div class="stat-label">Primary Keys</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">17</div>
+                    <div class="stat-label">Foreign Keys</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ER Diagram -->
+        <div class="diagram-container">
+            <h2 style="text-align: center; color: #1e293b; margin-bottom: 2rem;">📊 Entity-Relationship Diagram</h2>
+            <div class="mermaid">
+erDiagram
+    Users ||--o| Students : "has one"
+    Users ||--o| Faculty : "has one"
+    Users ||--o{ Announcements : "posts"
+    
+    Students ||--o{ Enrollment : "enrolls in"
+    Students ||--o{ Attendance : "has attendance"
+    Students ||--o{ Grades : "receives grades"
+    Students ||--o{ Fees : "pays fees"
+    
+    Courses ||--o{ Enrollment : "has students"
+    Courses ||--o{ Course_Assignment : "assigned to faculty"
+    Courses ||--o{ Attendance : "tracks attendance"
+    Courses ||--o{ Grades : "has grades"
+    Courses ||--o{ Timetable : "scheduled"
+    
+    Faculty ||--o{ Course_Assignment : "teaches"
+    Faculty ||--o{ Timetable : "scheduled"
+    
+    Users {
+        int user_id PK
+        varchar username UK
+        varchar password
+        enum role "admin|student|faculty"
+        varchar email UK
+        timestamp created_at
+    }
+    
+    Students {
+        int student_id PK
+        int user_id FK_UK
+        varchar first_name
+        varchar last_name
+        date date_of_birth
+        enum gender
+        varchar phone
+        text address
+        date enrollment_date
+        varchar program
+        int semester
+        enum status "Active|Inactive|Graduated"
+    }
+    
+    Faculty {
+        int faculty_id PK
+        int user_id FK_UK
+        varchar first_name
+        varchar last_name
+        varchar department
+        varchar phone
+        varchar email
+        varchar qualification
+        date hire_date
+    }
+    
+    Courses {
+        int course_id PK
+        varchar course_code UK
+        varchar course_name
+        int credits
+        varchar department
+        int semester
+        text description
+    }
+    
+    Course_Assignment {
+        int assignment_id PK
+        int course_id FK
+        int faculty_id FK
+        varchar academic_year
+        int semester
+    }
+    
+    Enrollment {
+        int enrollment_id PK
+        int student_id FK
+        int course_id FK
+        date enrollment_date
+        varchar academic_year
+        enum status "Enrolled|Dropped|Completed"
+    }
+    
+    Attendance {
+        int attendance_id PK
+        int student_id FK
+        int course_id FK
+        date attendance_date
+        enum status "Present|Absent|Late"
+        text remarks
+    }
+    
+    Grades {
+        int grade_id PK
+        int student_id FK
+        int course_id FK
+        enum assessment_type "Assignment|Midterm|Final|Quiz|Project"
+        decimal marks_obtained
+        decimal max_marks
+        varchar grade_letter
+        varchar academic_year
+    }
+    
+    Fees {
+        int fee_id PK
+        int student_id FK
+        varchar academic_year
+        int semester
+        decimal total_amount
+        decimal paid_amount
+        date payment_date
+        enum status "Pending|Partial|Paid"
+    }
+    
+    Announcements {
+        int announcement_id PK
+        varchar title
+        text content
+        int posted_by FK
+        timestamp posted_date
+        enum target_audience "All|Students|Faculty"
+    }
+    
+    Timetable {
+        int timetable_id PK
+        int course_id FK
+        int faculty_id FK
+        enum day_of_week "Monday-Saturday"
+        time start_time
+        time end_time
+        varchar room_number
+    }
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <h3>📖 Diagram Legend</h3>
+                <div class="legend-item">
+                    <span class="legend-symbol">PK</span>
+                    <span>Primary Key - Unique identifier for each record</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">FK</span>
+                    <span>Foreign Key - Reference to another table</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">UK</span>
+                    <span>Unique Key - Must be unique across the table</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">||--o|</span>
+                    <span>One-to-One relationship</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">||--o{</span>
+                    <span>One-to-Many relationship</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Cards -->
+        <div class="info-grid">
+            <div class="info-card blue">
+                <h3>👥 Core Entities (3)</h3>
+                <ul>
+                    <li>Users - Authentication & Authorization</li>
+                    <li>Students - Student Information</li>
+                    <li>Faculty - Faculty Information</li>
+                </ul>
+            </div>
+
+            <div class="info-card green">
+                <h3>📚 Academic Tables (5)</h3>
+                <ul>
+                    <li>Courses - Course Catalog</li>
+                    <li>Enrollment - Student-Course Link</li>
+                    <li>Course_Assignment - Faculty-Course Link</li>
+                    <li>Attendance - Attendance Records</li>
+                    <li>Grades - Assessment & Grades</li>
+                </ul>
+            </div>
+
+            <div class="info-card purple">
+                <h3>🗓️ Scheduling (1)</h3>
+                <ul>
+                    <li>Timetable - Class Schedules</li>
+                </ul>
+            </div>
+
+            <div class="info-card orange">
+                <h3>💰 Administrative (2)</h3>
+                <ul>
+                    <li>Fees - Fee Management</li>
+                    <li>Announcements - Notices & Updates</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Relationship Summary -->
+        <div class="diagram-container">
+            <h2 style="text-align: center; color: #1e293b; margin-bottom: 2rem;">🔗 Relationship Summary</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 1rem;">One-to-One (1:1)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.75rem; background: #f8fafc; margin: 0.5rem 0; border-radius: 8px;">
+                            <strong>Users ↔ Students</strong><br>
+                            <small style="color: #64748b;">Each user account linked to one student profile</small>
+                        </li>
+                        <li style="padding: 0.75rem; background: #f8fafc; margin: 0.5rem 0; border-radius: 8px;">
+                            <strong>Users ↔ Faculty</strong><br>
+                            <small style="color: #64748b;">Each user account linked to one faculty profile</small>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 1rem;">Many-to-Many (M:N)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.75rem; background: #f8fafc; margin: 0.5rem 0; border-radius: 8px;">
+                            <strong>Students ↔ Courses</strong> (via Enrollment)<br>
+                            <small style="color: #64748b;">Students enroll in multiple courses</small>
+                        </li>
+                        <li style="padding: 0.75rem; background: #f8fafc; margin: 0.5rem 0; border-radius: 8px;">
+                            <strong>Faculty ↔ Courses</strong> (via Course_Assignment)<br>
+                            <small style="color: #64748b;">Faculty teach multiple courses</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 2rem; background: #eff6ff; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                <h3 style="color: #1e293b; margin-bottom: 1rem;">💡 Key Design Features</h3>
+                <ul style="color: #64748b; line-height: 1.8;">
+                    <li>✓ <strong>CASCADE DELETE</strong> - Deleting a user removes all associated data</li>
+                    <li>✓ <strong>Referential Integrity</strong> - All foreign keys properly constrained</li>
+                    <li>✓ <strong>Unique Constraints</strong> - Prevent duplicate enrollments</li>
+                    <li>✓ <strong>ENUM Types</strong> - Predefined values for consistency</li>
+                    <li>✓ <strong>Timestamp Tracking</strong> - Automatic date/time recording</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: white; padding: 2rem;">
+            <p style="font-size: 1.125rem; font-weight: 600;">🎓 Student Management System v2.0</p>
+            <p style="opacity: 0.9; margin-top: 0.5rem;">Enhanced with Modern UI/UX Design</p>
+            <p style="opacity: 0.8; margin-top: 0.5rem; font-size: 0.875rem;">
+                Repository: <a href="https://github.com/sorathiyaom089/Student-Management-System.git" 
+                   style="color: white; text-decoration: underline;">GitHub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#94a3b8',
+                secondaryColor: '#f8fafc',
+                tertiaryColor: '#eff6ff'
+            }
+        });
+    </script>
+</body>
+</html>
+
